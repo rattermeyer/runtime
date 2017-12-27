@@ -1,0 +1,3 @@
+server {% for server in groups['minio-servers'] -%}
+  {%- for dir in minio_data_directories -%}http://{{ hostvars[server].ansible_host }}{{dir}} {% endfor %}
+{% endfor %}

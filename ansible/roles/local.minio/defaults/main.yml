@@ -1,1 +1,4 @@
-minio_data_directory: '/data/minio'
+minio_data_directories: ['/data/minio']
+minio_server_release: "RELEASE.2017-11-22T19-55-46Z"
+minio_server_sha256: "7e385f1ed599218c69d3a532b4351a3f8624fa0bc511b9f4083b3becc480e9d3"
+minio_server_url: "https://dl.minio.io/server/minio/release/linux-amd64/archive/minio.{{minio_server_release}}"

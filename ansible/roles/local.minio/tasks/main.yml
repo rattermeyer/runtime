@@ -1,13 +1,41 @@
 - name: "create minio data directory"
   file:
-    path: "{{minio_data_directory}}"
+    path: "{{item}}"
     state: directory
+  with_items: "{{ minio_data_directories }}"
   become: True
 
-- debug:
-    msg: "{{ for g in groups['minio-servers'] hostvars[g] done }}"
+- name: "delete minio.sys"
+  file:
+    path: "{{item}}/.minio.sys"
+    state: absent
+  with_items: "{{ minio_data_directories }}"
+  become: True
 
-#- name: "start minio container"
-#  docker_container:
-#    volumes:
-#    - "{{ minio_data_directory }}:/export"
+- name: generate minio command
+  local_action:
+    module: template
+    src: minio-command.j2
+    dest: /tmp/minio-command.txt
+  run_once: True
+
+- name: lookup file contents
+  set_fact:
+    command:  "{{lookup('file', '/tmp/minio-command.txt')}}"
+
+- name: start minio container
+  docker_container:
+    name: minio
+    image: "minio/minio:{{minio_server_release}}"
+    #command: "server /export"
+    command: "{{command}}"
+    volumes:
+    - "{{minio_data_directories|first}}:{{minio_data_directories|first}}"
+    network_mode: host
+    restart_policy: on-failure
+    restart_retries: 3
+    recreate: True
+    env:
+      MINIO_ACCESS_KEY: "{{ minio_access_key }}"
+      MINIO_SECRET_KEY: "{{ minio_secret_key }}"
+  become: True
