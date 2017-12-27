@@ -1,0 +1,6 @@
+---
+- hosts: docker-registry-servers
+  roles:
+  - role: local.docker-registry
+    docker_registry_storage_type: s3
+    docker_registry_storage_s3_bucket: registry
