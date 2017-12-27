@@ -1,0 +1,13 @@
+- name: create config directories
+  file:
+    path: "{{item}}"
+    state: directory
+  become: True
+  with_items:
+  - "{{docker_registry_config_path}}"
+
+- name: create config file
+  template:
+    src: config.yml.j2
+    dest: "{{ docker_registry_config_path }}/config.yml"
+  become: True

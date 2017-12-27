@@ -1,0 +1,153 @@
+version: 0.1
+log:
+  accesslog:
+    disabled: {{ docker_registry_log_accesslog_disabled | lower }}
+  level: {{ docker_registry_log_level }}
+  formatter: {{ docker_registry_log_formatter }}
+  fields: {{ docker_registry_log_fields | to_yaml }}
+{% if docker_registry_log_hooks is defined %}
+  hooks: {{ docker_registry_log_hooks }}
+{% endif %}
+storage:
+{% if docker_registry_storage_type == 'filesystem' %}
+  filesystem:
+    rootdirectory: {{docker_registry_storage_file_rootdirectory}}
+    maxthreads: {{ docker_registry_storage_file_maxthreads }}
+{% endif %}
+# if docker_registry_storage_type == 's3'
+  s3:
+    {% if docker_registry_storage_s3_accesskey is defined -%}
+    accesskey: {{docker_registroy_storage_s3_accesskey}}
+    {% endif -%}
+    {% if docker_registry_storage_s3_secretkey is defined -%}
+    secretkey: {{ docker_registry_storage_s3_secretkey }}
+    {% endif -%}
+    region: {{ docker_registry_storage_s3_region }}
+    {% if docker_registry_storage_s3_regionendpoint is defined -%}
+    regionendpoint: {{ docker_registry_storage_s3_regionendpoint }}
+    {% endif -%}
+    bucket: {{ docker_registry_storage_s3_bucket }}
+    {% if docker_registry_storage_s3_encrypt is defined -%}
+    encrypt: {{docker_registry_storage_s3_encrypt | lower }}
+    {% endif -%}
+    {% if docker_registry_storage_s3_keyid is defined -%}
+    keyid: mykeyid
+    {% endif -%}
+    secure: {{ docker_registry_storage_s3_secure | lower}}
+    v4auth: {{ docker_registry_storage_s3_v4auth | lower}}
+    {% if docker_registry_storage_s3_chunksize is defined -%}
+    chunksize: {{ docker_registry_storage_s3_chunksize }}
+    {% endif -%}
+    {% if docker_registry_storage_s3_rootdirectory is defined -%}
+    rootdirectory: {{ docker_registry_storage_s3_rootdirectory }}
+    {% endif -%}
+    {% if docker_registry_storage_s3_storageclass is defined -%}
+    storageclass: {{ docker_registry_storage_s3_storageclass }}
+    {% endif -%}
+# endif
+  delete:
+    enabled: {{docker_registry_delete_enabled | lower}}
+  redirect:
+    disable: {{ docker_registry_redirect_disable | lower}}
+  cache:
+    blobdescriptor: {{ docker_registry_cache_blobdescriptor}}
+  maintenance:
+    uploadpurging:
+      enabled: {{ docker_registry_maintenance_uploadpurging_enabled | lower}}
+      age: {{ docker_registry_maintenance_uploadpurging_age }}
+      interval: {{ docker_registry_maintenance_uploadpurging_interval }}
+      dryrun: {{ docker_registry_maintenance_uploadpurging_dryrun | lower }}
+    readonly:
+      enabled: {{ docker_registry_maintenance_uploadpurging_readonly_enabled | lower}}
+auth:
+{% if 'token' in docker_registry_auth_schemas %}
+  token:
+    realm: token-realm
+    service: token-service
+    issuer: registry-token-issuer
+    rootcertbundle: /root/certs/bundle
+{% endif %}
+{% if 'htpasswd' in docker_registry_auth_schemas %}
+  htpasswd:
+    realm: basic-realm
+    path: /path/to/htpasswd
+{% endif %}
+http:
+  addr: localhost:5000
+  prefix: /my/nested/registry/
+  host: https://myregistryaddress.org:5000
+  secret: asecretforlocaldevelopment
+  relativeurls: false
+  tls:
+    certificate: /path/to/x509/public
+    key: /path/to/x509/private
+    clientcas:
+      - /path/to/ca.pem
+      - /path/to/another/ca.pem
+    letsencrypt:
+      cachefile: /path/to/cache-file
+      email: emailused@letsencrypt.com
+  debug:
+    addr: localhost:5001
+  headers:
+    X-Content-Type-Options: [nosniff]
+  http2:
+    disabled: false
+notifications:
+  endpoints:
+    - name: alistener
+      disabled: false
+      url: https://my.listener.com/event
+      headers: <http.Header>
+      timeout: 500
+      threshold: 5
+      backoff: 1000
+      ignoredmediatypes:
+        - application/octet-stream
+redis:
+  addr: localhost:6379
+  password: asecret
+  db: 0
+  dialtimeout: 10ms
+  readtimeout: 10ms
+  writetimeout: 10ms
+  pool:
+    maxidle: 16
+    maxactive: 64
+    idletimeout: 300s
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+  file:
+    - file: /path/to/checked/file
+      interval: 10s
+  http:
+    - uri: http://server.to.check/must/return/200
+      headers:
+        Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
+      statuscode: 200
+      timeout: 3s
+      interval: 10s
+      threshold: 3
+  tcp:
+    - addr: redis-server.domain.com:6379
+      timeout: 3s
+      interval: 10s
+      threshold: 3
+proxy:
+  remoteurl: https://registry-1.docker.io
+  username: [username]
+  password: [password]
+compatibility:
+  schema1:
+    signingkeyfile: /etc/registry/key.json
+validation:
+  enabled: true
+  manifests:
+    urls:
+      allow:
+        - ^https?://([^/]+\.)*example\.com/
+      deny:
+        - ^https?://www\.example\.com/
