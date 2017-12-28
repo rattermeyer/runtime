@@ -15,7 +15,7 @@
     "default-ulimits": {{docker_default_ulimits | default('{}')}},
 #}
     "disable-legacy-registry": {{docker_disable_legacy_registy | default('false')}},
-    "dns": {{docker_dns | default('[]')}},
+    "dns": {{docker_dns | default('[]')| to_json}},
     "dns-opts": {{docker_dns_opts | default('[]')}},
     "dns-search": {{docker_dns_search | default('[]')}},
     "exec-opts": {{docker_exec_opts | default('[]')}},
