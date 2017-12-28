@@ -1,4 +1,7 @@
-docker_registry_config_path: /etc/registry
+# paths on the host
+docker_registry_config_path: /etc/docker/registry
+docker_registry_certs_path: /etc/docker/certs.d
+
 docker_registry_log_accesslog_disabled: true
 docker_registry_log_level: debug
 docker_registry_log_formatter: text
@@ -17,6 +20,26 @@ docker_registry_storage_s3_encrypt: true
 docker_registry_storage_s3_secure: true
 docker_registry_storage_s3_v4auth: true
 
+docker_registry_http_addr: :5000
+docker_registry_http_tls_basepath: /etc/docker/certs.d
+docker_registry_http_tls_fullpath: "{{docker_registry_http_tls_basepath}}/registry.service.consul:5000"
+docker_registry_http_tls_certificate: "{{docker_registry_http_tls_fullpath}}/registry.service.consul.pem"
+docker_registry_http_tls_key: "{{docker_registry_http_tls_fullpath}}/registry.service.consul-key.pem"
+
+# optional
+#docker_registry_http_tls_clientcas: 
+#  - "{{docker_registry_http_tls_fullpath}}/ca.pem"
+
+docker_registry_redis_addr: "localhost:6379"
+docker_registry_redis_password: not_correctly_set
+docker_registry_redis_db: 0
+docker_registry_redis_dialtimeout: 10ms
+docker_registry_redis_readtimeout: 10ms
+docker_registry_redis_writetimeout: 10ms
+docker_registry_redis_pool_maxidle: 16
+docker_registry_redis_pool_maxactive: 64
+docker_registry_redis_pool_idletimeout: 300s
+
 docker_registry_delete_enabled: true
 docker_registry_redirect_disable: false
 docker_registry_cache_blobdescriptor: inmemory
@@ -26,3 +49,6 @@ docker_registry_maintenance_uploadpurging_interval: 24h
 docker_registry_maintenance_uploadpurging_dryrun: false
 docker_registry_maintenance_uploadpurging_readonly_enabled: false
 docker_registry_auth_schemas: ['htpasswd']
+docker_registry_auth_htpasswd_path: /etc/docker/registry/htpasswd
+docker_registry_proxy_enabled: false
+docker_registry_validation_enabled: false

@@ -1,3 +1,5 @@
+#jinja2: lstrip_blocks: True
+# {{ ansible_managed }}
 version: 0.1
 log:
   accesslog:
@@ -14,37 +16,37 @@ storage:
     rootdirectory: {{docker_registry_storage_file_rootdirectory}}
     maxthreads: {{ docker_registry_storage_file_maxthreads }}
 {% endif %}
-# if docker_registry_storage_type == 's3'
+{% if docker_registry_storage_type == 's3' %}
   s3:
-    {% if docker_registry_storage_s3_accesskey is defined -%}
+    {% if docker_registry_storage_s3_accesskey is defined %}
     accesskey: {{docker_registroy_storage_s3_accesskey}}
-    {% endif -%}
-    {% if docker_registry_storage_s3_secretkey is defined -%}
+    {% endif %}
+    {% if docker_registry_storage_s3_secretkey is defined %}
     secretkey: {{ docker_registry_storage_s3_secretkey }}
-    {% endif -%}
+    {% endif %}
     region: {{ docker_registry_storage_s3_region }}
-    {% if docker_registry_storage_s3_regionendpoint is defined -%}
+    {% if docker_registry_storage_s3_regionendpoint is defined %}
     regionendpoint: {{ docker_registry_storage_s3_regionendpoint }}
-    {% endif -%}
+    {% endif %}
     bucket: {{ docker_registry_storage_s3_bucket }}
-    {% if docker_registry_storage_s3_encrypt is defined -%}
+    {% if docker_registry_storage_s3_encrypt is defined %}
     encrypt: {{docker_registry_storage_s3_encrypt | lower }}
-    {% endif -%}
-    {% if docker_registry_storage_s3_keyid is defined -%}
+    {% endif %}
+    {% if docker_registry_storage_s3_keyid is defined %}
     keyid: mykeyid
-    {% endif -%}
+    {% endif %}
     secure: {{ docker_registry_storage_s3_secure | lower}}
     v4auth: {{ docker_registry_storage_s3_v4auth | lower}}
-    {% if docker_registry_storage_s3_chunksize is defined -%}
+    {% if docker_registry_storage_s3_chunksize is defined %}
     chunksize: {{ docker_registry_storage_s3_chunksize }}
-    {% endif -%}
-    {% if docker_registry_storage_s3_rootdirectory is defined -%}
+    {% endif %}
+    {% if docker_registry_storage_s3_rootdirectory is defined %}
     rootdirectory: {{ docker_registry_storage_s3_rootdirectory }}
-    {% endif -%}
-    {% if docker_registry_storage_s3_storageclass is defined -%}
+    {% endif %}
+    {% if docker_registry_storage_s3_storageclass is defined %}
     storageclass: {{ docker_registry_storage_s3_storageclass }}
-    {% endif -%}
-# endif
+    {% endif %}
+{% endif %}
   delete:
     enabled: {{docker_registry_delete_enabled | lower}}
   redirect:
@@ -67,82 +69,88 @@ auth:
     issuer: registry-token-issuer
     rootcertbundle: /root/certs/bundle
 {% endif %}
-{% if 'htpasswd' in docker_registry_auth_schemas %}
+{% if 'htpasswd' in docker_registry_auth_schemas %} 
   htpasswd:
     realm: basic-realm
-    path: /path/to/htpasswd
-{% endif %}
+    path: {{ docker_registry_auth_htpasswd_path }}
+{% endif %} 
 http:
-  addr: localhost:5000
-  prefix: /my/nested/registry/
-  host: https://myregistryaddress.org:5000
-  secret: asecretforlocaldevelopment
-  relativeurls: false
+  addr: {{ docker_registry_http_addr }}
+  {% if docker_registry_http_prefix is defined %}
+  prefix: {{ docker_registry_http_prefix }}
+  {% endif %}
+  {% if docker_registry_http_host is defined %}
+  host: {{ docker_registry_http_host }}
+  {% endif %}
+  {% if docker_registry_http_secret is defined %}
+  secret: {{ docker_registry_http_secret }}
+  {% endif %}
+  relativeurls: {{ docker_registry_http_relativeurls | default(false) }}
   tls:
-    certificate: /path/to/x509/public
-    key: /path/to/x509/private
-    clientcas:
-      - /path/to/ca.pem
-      - /path/to/another/ca.pem
-    letsencrypt:
-      cachefile: /path/to/cache-file
-      email: emailused@letsencrypt.com
+    certificate: {{docker_registry_http_tls_certificate}}
+    key: {{ docker_registry_http_tls_key }}
+{% if docker_registry_http_tls_clientcas is defined %}
+    clientcas: {{ docker_registry_http_tls_clientcas | to_yaml }}
+{% endif %}
   debug:
     addr: localhost:5001
   headers:
     X-Content-Type-Options: [nosniff]
   http2:
     disabled: false
-notifications:
-  endpoints:
-    - name: alistener
-      disabled: false
-      url: https://my.listener.com/event
-      headers: <http.Header>
-      timeout: 500
-      threshold: 5
-      backoff: 1000
-      ignoredmediatypes:
-        - application/octet-stream
+#notifications:
+#  endpoints:
+#    - name: alistener
+#      disabled: false
+#      url: https://my.listener.com/event
+#      headers: <http.Header>
+#      timeout: 500
+#      threshold: 5
+#      backoff: 1000
+#      ignoredmediatypes:
+#        - application/octet-stream
+{% if docker_registry_cache_blobdescriptor == 'redis' %}
 redis:
-  addr: localhost:6379
-  password: asecret
-  db: 0
-  dialtimeout: 10ms
-  readtimeout: 10ms
-  writetimeout: 10ms
+  addr: {{ docker_registry_redis_addr }}
+  password: {{ docker_registry_redis_password }}
+  db: {{ docker_registry_redis_db }}
+  dialtimeout: {{ docker_registry_redis_dialtimeout }}
+  readtimeout: {{ docker_registry_redis_readtimeout }}
+  writetimeout: {{ docker_registry_redis_writetimeout }}
   pool:
-    maxidle: 16
-    maxactive: 64
-    idletimeout: 300s
+    maxidle: {{ docker_registry_redis_pool_maxidle }}
+    maxactive: {{ docker_registry_redis_pool_maxactive }}
+    idletimeout: {{ docker_registry_redis_pool_idletimeout }}
+{% endif %}
 health:
   storagedriver:
     enabled: true
     interval: 10s
     threshold: 3
   file:
-    - file: /path/to/checked/file
-      interval: 10s
+#    - file: /path/to/checked/file
+#      interval: 10s
   http:
-    - uri: http://server.to.check/must/return/200
-      headers:
-        Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
-      statuscode: 200
-      timeout: 3s
-      interval: 10s
-      threshold: 3
+#   - uri: http://server.to.check/must/return/200
+#     headers:
+#       Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
+#     statuscode: 200
+#     timeout: 3s
+#     interval: 10s
+#     threshold: 3
   tcp:
-    - addr: redis-server.domain.com:6379
-      timeout: 3s
-      interval: 10s
-      threshold: 3
+#   - addr: redis-server.domain.com:6379
+#     timeout: 3s
+#     interval: 10s
+#     threshold: 3
+
+{% if docker_registry_proxy_enabled %}
 proxy:
   remoteurl: https://registry-1.docker.io
   username: [username]
   password: [password]
-compatibility:
-  schema1:
-    signingkeyfile: /etc/registry/key.json
+{% endif %}
+{% if docker_registry_validation_enabled %}
 validation:
   enabled: true
   manifests:
@@ -151,3 +159,4 @@ validation:
         - ^https?://([^/]+\.)*example\.com/
       deny:
         - ^https?://www\.example\.com/
+{% endif %}

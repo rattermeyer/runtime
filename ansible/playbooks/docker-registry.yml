@@ -1,6 +1,53 @@
 ---
 - hosts: docker-registry-servers
+  vars:
+    docker_registry_certs_path: /etc/docker/certs.d
+    docker_registry_certs_fullpath: "{{docker_registry_certs_path}}/registry.service.consul:5000"
+    docker_registry_config_path: /etc/docker/registry
+  pre_tasks:
+  - name: "ensure python libraries are present (for htpasswd)"
+    pip:
+      name: "{{ item }}"
+    with_items:
+      - passlib
+      - bcrypt
+    become: True
+  
+  - name: "create config directories"
+    file:
+      path: "{{item}}"
+      state: directory
+    become: True
+    with_items:
+    - "{{docker_registry_certs_fullpath}}"
+    - "{{docker_registry_config_path}}"
+  
+  - name: copy tls keys and certificates
+    copy:
+      src: "/home/vagrant/pki/{{item.src}}"
+      dest: "{{docker_registry_certs_fullpath}}/{{item.dest|default(item.src)}}"
+    become: True
+    with_items:
+      - {src: "registry.service.consul.pem"}
+      - {src: "registry.service.consul-key.pem"}
+      - {src: "ca.pem", dest: "ca.crt"}
+  
+  # the passwords in htpasswd for the docker registry must be
+  # encrypted using bcrypt
+  # e.g. htpasswd -Bbn ....
+  - name: create htpasswd
+    htpasswd:
+      path: /etc/docker/registry/htpasswd
+      name: alice
+      password: password
+      crypt_scheme: bcrypt
+    become: True
   roles:
   - role: local.docker-registry
-    docker_registry_storage_type: s3
+    docker_registry_storage_type: filesystem
     docker_registry_storage_s3_bucket: registry
+  post_tasks:
+  - name: register at consul
+    consul:
+      service_name: registry
+      service_port: 5000
