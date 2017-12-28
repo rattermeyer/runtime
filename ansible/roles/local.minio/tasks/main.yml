@@ -27,7 +27,6 @@
   docker_container:
     name: minio
     image: "minio/minio:{{minio_server_release}}"
-    #command: "server /export"
     command: "{{command}}"
     volumes:
     - "{{minio_data_directories|first}}:{{minio_data_directories|first}}"

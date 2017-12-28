@@ -11,7 +11,7 @@ docker_registry_log_fields:
 docker_registry_storage_type: filesystem
 docker_registry_storage_file_rootdirectory: /var/lib/registry
 docker_registry_storage_file_maxthreads: 100
-docker_registry_storage_s3_region: 'us-west-1'
+docker_registry_storage_s3_region: 'us-east-1'
 #docker_registry_storage_s3_accesskey: ''
 #docker_registry_storage_s3_secretkey: ''
 #docker_registry_storage_s3_regionendpoint: ''
@@ -25,7 +25,7 @@ docker_registry_http_tls_basepath: /etc/docker/certs.d
 docker_registry_http_tls_fullpath: "{{docker_registry_http_tls_basepath}}/registry.service.consul:5000"
 docker_registry_http_tls_certificate: "{{docker_registry_http_tls_fullpath}}/registry.service.consul.pem"
 docker_registry_http_tls_key: "{{docker_registry_http_tls_fullpath}}/registry.service.consul-key.pem"
-
+docker_http_debug_addr: :5001
 # optional
 #docker_registry_http_tls_clientcas: 
 #  - "{{docker_registry_http_tls_fullpath}}/ca.pem"

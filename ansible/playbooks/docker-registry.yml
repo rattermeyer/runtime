@@ -44,8 +44,16 @@
     become: True
   roles:
   - role: local.docker-registry
-    docker_registry_storage_type: filesystem
+    docker_registry_storage_type: s3
     docker_registry_storage_s3_bucket: registry
+    docker_registry_storage_s3_secure: false
+    docker_registry_storage_s3_encrypt: false
+    # TODO this should be minio.service.consul
+    # but docker does not use consul as a DNS by default
+    # this must be added in the docker playbook
+    docker_registry_storage_s3_regionendpoint: http://192.168.56.22:9500
+    docker_registry_storage_s3_accesskey: "{{minio_access_key}}"
+    docker_registry_storage_s3_secretkey: "{{minio_secret_key}}"
   post_tasks:
   - name: register at consul
     consul:

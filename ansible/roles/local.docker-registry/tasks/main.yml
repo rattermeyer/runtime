@@ -22,6 +22,7 @@
       - "{{docker_registry_certs_path}}:{{docker_registry_http_tls_basepath}}:ro"
     ports:
     - 5000:5000
+    - 5001:5001 ## debug
     restart_policy: on-failure
     restart_retries: 3
     restart: True

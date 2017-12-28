@@ -19,7 +19,7 @@ storage:
 {% if docker_registry_storage_type == 's3' %}
   s3:
     {% if docker_registry_storage_s3_accesskey is defined %}
-    accesskey: {{docker_registroy_storage_s3_accesskey}}
+    accesskey: {{docker_registry_storage_s3_accesskey}}
     {% endif %}
     {% if docker_registry_storage_s3_secretkey is defined %}
     secretkey: {{ docker_registry_storage_s3_secretkey }}
@@ -93,7 +93,7 @@ http:
     clientcas: {{ docker_registry_http_tls_clientcas | to_yaml }}
 {% endif %}
   debug:
-    addr: localhost:5001
+    addr: {{ docker_http_debug_addr }}
   headers:
     X-Content-Type-Options: [nosniff]
   http2:
