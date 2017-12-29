@@ -1,5 +1,5 @@
-- src: rattermeyer.docker
-  version: v0.5
+- src: angstwad.docker_ubuntu
+  version: v3.3.4
 
 #- src: rattermeyer.consul
 #  version: v0.5

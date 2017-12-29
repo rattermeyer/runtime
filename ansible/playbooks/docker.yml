@@ -1,10 +1,26 @@
 - hosts: dockerhosts
-  pre_tasks:
-  - name: "install aufs"
-    become: True
-    apt:
-      name: "linux-image-extra-{{ansible_kernel}}"
   roles:
-    - role: rattermeyer.docker
-      pip_version_docker_compose: 1.9.0
+    - role: angstwad.docker_ubuntu
+      daemon_json:
+        log-level: debug
+        dns: ["{{ansible_default_ipv4.address}}","8.8.8.8", "8.8.4.4"]
+
+#      pip_version_docker_compose: 1.9.0
+#      docker_dns: ["{{ansible_docker0.ipv4.address}}","8.8.8.8", "8.8.4.4"]
+#      docker_storage_driver: overlay2
+#      docker_log_driver: gelf
+#      docker_log_opts:
+#        gelf-address: tcp://192.168.56.22:12201
       become: True
+  tasks:
+  - name: restart dnsmasq
+    service:
+      name: dnsmasq
+      state: restarted
+    become: True
+# normally angstward.docker should install the correct docker-py / docker version
+# but somehow, we require docker-py as well (although it should not be required ...)
+  - name: ensure docker-py is installed
+    pip:
+      name: docker-py
+    become: True
