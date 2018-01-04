@@ -1,0 +1,10 @@
+- name: Create Nomad client configuration file
+  become: yes
+  template:
+    src: client.hcl.j2
+    dest: "{{ nomad_config_dir }}/client.hcl"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nomad

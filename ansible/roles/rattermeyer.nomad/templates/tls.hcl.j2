@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+tls {
+  http = {{ nomad_tls_http | lower }}
+  rpc  = {{ nomad_tls_rpc | lower }}
+  verify_server_hostname = {{ nomad_tls_verify_server_hostname | lower  }}
+
+  ca_file   = "{{nomad_tls_dest_dir}}/{{ nomad_tls_ca_crt }}"
+  cert_file = "{{nomad_tls_dest_dir}}/{{ nomad_tls_crt }}"
+  key_file  = "{{nomad_tls_dest_dir}}/{{ nomad_tls_key}}"
+  verify_https_client = {{nomad_tls_verify_client | lower}}
+}

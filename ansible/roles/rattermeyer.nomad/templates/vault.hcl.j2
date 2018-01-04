@@ -1,0 +1,25 @@
+# {{ ansible_managed }}
+
+vault {
+  enabled     = true
+  address     = "{{ nomad_vault_address }}"
+{% if nomad_vault_ca_path is defined %}
+  ca_path     = "{{ nomad_vault_ca_path }}"
+{% endif %}
+{% if nomad_vault_ca_file %}
+  ca_file     = "{{ nomad_vault_ca_file }}"
+{% endif %}
+
+{% if nomad_vault_key_file is defined %}
+  cert_file   = "{{ nomad_vault_cert_file }}"
+  key_file    = "{{ nomad_vault_key_file }}"
+{% endif %}
+
+{% if nomad_server %}
+  token       = "{{nomad_vault_token}}"
+  # Setting the create_from_role option causes Nomad to create tokens for tasks
+  # via the provided role. This allows the role to manage what policies are
+  # allowed and disallowed for use by tasks.
+  create_from_role = "{{nomad_vault_create_from_role}}"
+{% endif %}
+}

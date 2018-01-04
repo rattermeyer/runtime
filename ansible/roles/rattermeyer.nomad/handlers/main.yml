@@ -1,0 +1,18 @@
+---
+# handlers file for ansible-role-nomad
+- name: restart nomad
+  become: yes
+  service:
+    name: "{{ nomad_service_name }}"
+    state: restarted
+    enabled: True
+
+- name: reload nomad
+  become: yes
+  service:
+    name: "{{ nomad_service_name }}"
+    state: reloaded
+    enabled: True
+
+- name: reload systemd
+  command: systemctl daemon-reload
