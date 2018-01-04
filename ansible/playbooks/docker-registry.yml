@@ -1,0 +1,61 @@
+---
+- hosts: docker-registry-servers
+  vars:
+    docker_registry_certs_path: /etc/docker/certs.d
+    docker_registry_certs_fullpath: "{{docker_registry_certs_path}}/registry.service.consul:5000"
+    docker_registry_config_path: /etc/docker/registry
+  pre_tasks:
+  - name: "ensure python libraries are present (for htpasswd)"
+    pip:
+      name: "{{ item }}"
+    with_items:
+      - passlib
+      - bcrypt
+    become: True
+  
+  - name: "create config directories"
+    file:
+      path: "{{item}}"
+      state: directory
+    become: True
+    with_items:
+    - "{{docker_registry_certs_fullpath}}"
+    - "{{docker_registry_config_path}}"
+  
+  - name: copy tls keys and certificates
+    copy:
+      src: "/home/vagrant/pki/{{item.src}}"
+      dest: "{{docker_registry_certs_fullpath}}/{{item.dest|default(item.src)}}"
+    become: True
+    with_items:
+      - {src: "registry.service.consul.pem"}
+      - {src: "registry.service.consul-key.pem"}
+      - {src: "ca.pem", dest: "ca.crt"}
+  
+  # the passwords in htpasswd for the docker registry must be
+  # encrypted using bcrypt
+  # e.g. htpasswd -Bbn ....
+  - name: create htpasswd
+    htpasswd:
+      path: /etc/docker/registry/htpasswd
+      name: alice
+      password: password
+      crypt_scheme: bcrypt
+    become: True
+  roles:
+  - role: local.docker-registry
+    docker_registry_storage_type: s3
+    docker_registry_storage_s3_bucket: registry
+    docker_registry_storage_s3_secure: false
+    docker_registry_storage_s3_encrypt: false
+    # TODO this should be minio.service.consul
+    # but docker does not use consul as a DNS by default
+    # this must be added in the docker playbook
+    docker_registry_storage_s3_regionendpoint: http://minio.service.consul:9500
+    docker_registry_storage_s3_accesskey: "{{minio_access_key}}"
+    docker_registry_storage_s3_secretkey: "{{minio_secret_key}}"
+  post_tasks:
+  - name: register at consul
+    consul:
+      service_name: registry
+      service_port: 5000

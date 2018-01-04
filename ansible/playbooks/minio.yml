@@ -1,4 +1,13 @@
 ---
 - hosts: minio-servers
+  pre_tasks:
   roles:
-  - local.minio
+  - role: local.minio
+    minio_servers: "{{ groups['minio-servers']|map('extract', hostvars, 'ansible_host')|list }}"
+    minio_address: ":9500"
+  post_tasks:
+  - name: "register minio service"
+    consul:
+      service_name: minio
+      service_port: 9500
+

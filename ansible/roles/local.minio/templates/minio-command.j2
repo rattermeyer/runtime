@@ -1,0 +1,3 @@
+server {% if minio_address is defined %}--address "{{minio_address}}"{% endif %} {% for server in minio_servers -%}
+  {%- for dir in minio_data_directories -%}http://{{ server }}{{dir}} {% endfor %}
+{% endfor %}

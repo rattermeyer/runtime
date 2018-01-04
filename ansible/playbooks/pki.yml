@@ -48,6 +48,12 @@
         - 192.168.56.21
         - 192.168.56.22
         - 192.168.56.23
+      - cname: registry.service.consul
+        include_localhost: True
+        altips:
+        - 192.168.56.21
+        - 192.168.56.22
+        - 192.168.56.23
     pki_clients:
     - consul-worker1
     - consul-worker2
