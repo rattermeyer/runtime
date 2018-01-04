@@ -1,0 +1,9 @@
+#!/bin/sh
+NOMAD_ADDR=https://{{ nomad_bind_addr }}:4646
+export NOMAD_ADDR
+NOMAD_CACERT={{nomad_tls_dest_dir}}/{{ nomad_tls_ca_crt }}
+export NOMAD_CACERT
+NOMAD_CLIENT_CERT={{nomad_tls_dest_dir}}/{{ nomad_tls_client_crt }}
+export NOMAD_CLIENT_CERT
+NOMAD_CLIENT_KEY={{nomad_tls_dest_dir}}/{{ nomad_tls_client_key }}
+export NOMAD_CLIENT_KEY

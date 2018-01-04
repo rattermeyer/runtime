@@ -1,0 +1,79 @@
+---
+# File: tasks/tls.yml - TLS tasks for nomad
+- name: Create Nomad tls config
+  become: yes
+  template:
+    src: tls.hcl.j2
+    dest: "{{ nomad_config_dir }}/tls.hcl"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nomad
+
+- name: Create SSL directory
+  file:
+    dest: "{{ nomad_tls_dest_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- block:
+  - name: Copy CA certificate
+    become: True
+    copy:
+      src: "{{ nomad_tls_src_dir }}/{{ nomad_tls_ca_crt }}"
+      dest: "{{ nomad_tls_dest_dir }}/{{ nomad_tls_ca_crt }}"
+    notify:
+    - reload nomad
+    - restart nomad
+
+  - name: Copy server certificate
+    become: True
+    copy:
+      src: "{{ nomad_tls_src_dir }}/{{ nomad_tls_crt }}"
+      dest: "{{ nomad_tls_dest_dir }}/{{ nomad_tls_crt }}"
+    notify:
+    - reload nomad
+    - restart nomad
+
+  - name: Copy server key
+    become: True
+    copy:
+      src: "{{ nomad_tls_src_dir }}/{{ nomad_tls_key }}"
+      dest: "{{ nomad_tls_dest_dir }}/{{ nomad_tls_key }}"
+    notify:
+    - reload nomad
+    - restart nomad
+
+  - name: Copy client certificate
+    become: True
+    copy:
+      src: "{{ nomad_tls_src_dir }}/{{ nomad_tls_client_crt }}"
+      dest: "{{ nomad_tls_dest_dir }}/{{ nomad_tls_client_crt }}"
+    notify:
+    - reload nomad
+    - restart nomad
+
+  - name: Copy client key
+    become: True
+    copy:
+      src: "{{ nomad_tls_src_dir }}/{{ nomad_tls_client_key }}"
+      dest: "{{ nomad_tls_dest_dir }}/{{ nomad_tls_client_key }}"
+    notify:
+    - reload nomad
+    - restart nomad
+
+  - name: copy nomad env setup
+    become: True
+    template:
+      src: setUpEnv.sh.j2
+      dest: "{{ nomad_tls_dest_dir }}/setUpEnv.sh"
+
+  - name: TLS configuration
+    become: True
+    template:
+      src: tls.hcl.j2
+      dest: "{{ nomad_config_dir }}/tls.hcl"
+  when: nomad_tls_enable == True

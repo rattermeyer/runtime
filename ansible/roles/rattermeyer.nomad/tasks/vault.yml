@@ -1,0 +1,10 @@
+- name: Create Nomad vault configuration file
+  become: yes
+  template:
+    src: vault.hcl.j2
+    dest: "{{ nomad_config_dir }}/vault.hcl"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nomad
