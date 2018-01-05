@@ -25,20 +25,14 @@
 # install service discovery and K/V store as a base component
 - import_playbook: playbooks/servicediscovery.yml
 # and install a secrets management system and configure it
-- import_playbook: playbooks/vaultserver.yml
-- import_playbook: playbooks/vaultsetup.yml
-# elasticsearch cluster (used by graylog / gitlab)
-- import_playbook: playbooks/es.yml
-# mongodb replica set (used by graylog)
-- import_playbook: playbooks/mongodb.yml
-# install the acutal log management software
-- import_playbook: playbooks/graylog.yml
+- import_playbook: playbooks/secretsmanagement.yml
+#
+- import_playbook: playbooks/logmanagement.yml
 # now we can install docker
 # TODO configure docker to use graylog directly
 - import_playbook: playbooks/docker.yml
 
-# deploy s3 compatible backend (e.g. for docker registry)
-- import_playbook: playbooks/minio.yml
+- import_playbook: playbooks/registry.yml
 
 # now we can install our clusterscheduler (nomad)
 - import_playbook: playbooks/clusterscheduler.yml
