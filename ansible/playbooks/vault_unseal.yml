@@ -1,27 +1,13 @@
----
-#- hosts: controller
-#  vars:
-#    vault_tls_ca_crt: "{{ vault_tls_src_dir }}/ca.pem"
-#    vault_tls_dest_dir: "/etc/vault/ssl"
-#    vault_tls_src_dir: "/home/vagrant/pki"
-#  environment:
-#    VAULT_CAPATH: /etc/vault/ssl
-#    VAULT_CACERT: "{{vault_tls_ca_crt}}"
-#
-#  tasks:
-  - block:
-    - name: "lookup keys"
-      slurp:
-        src: /etc/vault/keys.json
-      register: vault_keys
-    - set_fact:
-        vault_init: "{{vault_keys['content'] | b64decode }}"
-
-  - name: "unseal vault"
-    hashivault_unseal:
-      keys: "{{vault_init.keys_base64 | join(' ')}}"
-      url: "https://{{item}}:8200"
-    with_items:
-    - 192.168.56.21
-    - 192.168.56.22
-    - 192.168.56.23
+- name: "lookup keys"
+  slurp:
+    src: /etc/vault/keys.json
+  register: vault_keys
+- set_fact:
+    vault_init: "{{vault_keys['content'] | b64decode }}"
+- debug:
+    msg: "{{ groups['vault_servers']|map('extract', hostvars, 'ansible_host')|list }}"
+- name: "unseal vault"
+  hashivault_unseal:
+    keys: "{{vault_init.keys_base64 | join(' ')}}"
+    url: "https://{{item}}:8200"
+  with_items: "{{ groups['vault_servers']|map('extract', hostvars, 'ansible_host')|list }}"

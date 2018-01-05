@@ -8,7 +8,6 @@
     VAULT_ADDR: https://192.168.56.21:8200
     VAULT_CAPATH: /etc/vault/ssl
     VAULT_CACERT: "{{vault_tls_ca_crt}}"
-
   tasks:
   - name: Create SSL directory
     become: yes
@@ -89,19 +88,39 @@
       token: "{{vault_init.root_token}}"
     register: vault_role_set
 
-
 #
 # This token is used to allow nomad access to vault secrets.
 # This references the nomad server policy (nomad_server) defined above
 #
-  - name: "lookup token"
-    hashivault_token_lookup:
-      lookup_token: "{{vault_init.root_token}}"
-      token: "{{vault_init.root_token}}"
-    register: vault_nomad_token
 
-  - debug:
-      msg: "{{vault_nomad_token}}"
+  - name: check for vault_nomad_token
+    stat:
+      path: "/etc/vault/nomad_token.json"
+    register: st_nomad_token_json
+  
+  - block:
+    - name: read token
+      slurp:
+        src: /etc/vault/nomad_token.json
+      register: nomad_token_b64
+    
+    - set_fact:
+        nomad_token: "{{ nomad_token_b64.content | b64decode }}"
+
+    - debug:
+        msg: "{{ nomad_token }}"
+
+    - name: "lookup token"
+      hashivault_token_lookup:
+        lookup_token: "{{nomad_token.auth.client_token}}"
+        token: "{{vault_init.root_token}}"
+      register: st_nomad_token
+      ignore_errors: True
+
+    - debug:
+        msg: "{{ st_nomad_token }}"
+    when: st_nomad_token_json.stat.exists
+  
   - name: "create vault nomad token"
     hashivault_token_create:
       ca_cert: "{{vault_tls_ca_crt}}"
@@ -113,6 +132,7 @@
       orphan: True
       token: "{{vault_init.root_token}}"
     register: vault_nomad_token
+    when: not st_nomad_token_json.stat.exists or st_nomad_token|failed
 
   - debug:
       var: vault_nomad_token

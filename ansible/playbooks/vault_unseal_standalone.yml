@@ -1,0 +1,10 @@
+- hosts: controller
+  vars:
+    vault_tls_ca_crt: "{{ vault_tls_src_dir }}/ca.pem"
+    vault_tls_dest_dir: "/etc/vault/ssl"
+    vault_tls_src_dir: "/home/vagrant/pki"
+  environment:
+    VAULT_CAPATH: /etc/vault/ssl
+    VAULT_CACERT: "{{vault_tls_ca_crt}}"
+  tasks:
+  - import_tasks: vault_unseal.yml
