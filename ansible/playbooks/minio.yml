@@ -1,6 +1,12 @@
 ---
 - hosts: minio-servers
   pre_tasks:
+  - name: "ensure pip is installed"
+    package:
+      name: python-pip
+  - name: "ensure python-consul is installed"
+    pip:
+      name: python-consul
   roles:
   - role: local.minio
     minio_servers: "{{ groups['minio-servers']|map('extract', hostvars, 'ansible_host')|list }}"

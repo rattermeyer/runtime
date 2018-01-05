@@ -3,5 +3,9 @@
 # like configuring ntp
 - hosts: all
   become: True
+  pre_tasks:
+  - name: "update cache"
+    apt:
+      update_cache: True
   roles:
     - role: geerlingguy.ntp
