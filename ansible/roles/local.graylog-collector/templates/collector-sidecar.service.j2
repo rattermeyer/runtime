@@ -1,0 +1,15 @@
+[Unit]
+Description=Wrapper service for Graylog controlled collector
+ConditionFileIsExecutable={{collector_sidecar_service_executable_file}}
+
+[Service]
+StartLimitInterval={{ collector_sidecar_service_start_limit_interval }} 
+StartLimitBurst= ={{ collector_sidecar_service_start_limit_burst }}
+ExecStart= {{collector_sidecar_service_executable_file}}
+
+Restart={{ collector_sidecar_service_restart }}
+RestartSec={{ collector_sidecar_service_restart_sec }}
+EnvironmentFile={{ collector_sidecar_service_environment_file }}
+
+[Install]
+WantedBy=multi-user.target

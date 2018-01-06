@@ -1,6 +1,7 @@
 # elasticsearch cluster (used by graylog / gitlab)
-- import_playbook: playbooks/es.yml
+- import_playbook: es.yml
 # mongodb replica set (used by graylog)
-- import_playbook: playbooks/mongodb.yml
+- import_playbook: mongodb.yml
 # install the acutal log management software
-- import_playbook: playbooks/graylog.yml
+- import_playbook: graylog.yml
+- import_playbook: graylog-collector.yml

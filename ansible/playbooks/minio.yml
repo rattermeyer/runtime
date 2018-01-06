@@ -4,9 +4,11 @@
   - name: "ensure pip is installed"
     package:
       name: python-pip
+    become: True
   - name: "ensure python-consul is installed"
     pip:
       name: python-consul
+    become: True
   roles:
   - role: local.minio
     minio_servers: "{{ groups['minio-servers']|map('extract', hostvars, 'ansible_host')|list }}"

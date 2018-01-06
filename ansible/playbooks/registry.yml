@@ -1,4 +1,4 @@
 # deploy s3 compatible backend (e.g. for docker registry)
-- import_playbook: playbooks/minio.yml
-- import_playbook: playbooks/docker-registry.yml
+- import_playbook: minio.yml
+- import_playbook: docker-registry.yml
 

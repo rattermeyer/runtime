@@ -1,0 +1,5 @@
+---
+- hosts: managed_nodes
+  roles:
+    - role: local.graylog-collector
+      collector_sidecar_server_url: http://192.168.56.22:9000/api/

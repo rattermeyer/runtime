@@ -1,0 +1,14 @@
+server_url: {{ collector_sidecar_server_url }}
+update_interval: {{ collector_sidecar_update_interval }} 
+tls_skip_verify: {{ collector_sidecar_tls_skip_verify | lower }}
+send_status: {{ collector_sidecar_send_status | lower }}
+list_log_files: {{ collector_sidecar_list_log_files | to_yaml }}
+node_id: {{ collector_sidecar_node_id }}
+collector_id: {{ collector_sidecar_collector_id }}
+log_path: {{ collector_sidecar_log_path }}
+log_rotation_time: {{ collector_sidecar_log_rotation_time }}
+log_max_age: {{ collector_sidecar_log_max_age }}
+tags: 
+{{ collector_sidecar_tags | to_nice_yaml}}
+backends: 
+{{ collector_sidecar_backends | to_nice_yaml }}

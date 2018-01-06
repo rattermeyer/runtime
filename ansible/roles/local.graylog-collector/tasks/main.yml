@@ -1,0 +1,44 @@
+- name: get sidecar release
+  get_url:
+    url: "https://github.com/Graylog2/collector-sidecar/releases/download/{{collector_sidecar_version}}/{{ collector_sidecar_pkg }}"
+    dest: "{{ role_path }}/files/{{ collector_sidecar_pkg }}" 
+  run_once: True
+  connection: local
+
+- name: copy to target host
+  copy: 
+    src: "{{ role_path}}/files/{{ collector_sidecar_pkg }}"
+    dest: "{{ collector_sidecar_pkg_path }}/{{ collector_sidecar_pkg}}"
+  become: True
+
+- name: Install package
+  apt:
+    deb: "{{ collector_sidecar_pkg_path }}/{{ collector_sidecar_pkg}}"
+  become: True
+
+- name: ensure cache directory exists
+  file:
+    path: /var/cache/graylog/collector-sidecar
+    state: directory
+  become: True
+
+- name: Configure sidecar
+  template:
+    src: collector_sidecar.yml.j2
+    dest: /etc/graylog/collector-sidecar/collector_sidecar.yml
+  become: True
+  notify: reload collector sidecar
+
+- name: Create service definition
+  template:
+    src: collector-sidecar.service.j2
+    dest: /etc/systemd/system/collector-sidecar.service
+  become: True
+  notify: systemd reload collector sidecar
+
+- name: Ensure service is installed
+  service:
+    name: collector-sidecar
+    state: started
+    enabled: True
+  become: True

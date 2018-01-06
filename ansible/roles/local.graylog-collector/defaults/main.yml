@@ -1,0 +1,41 @@
+collector_sidecar_version: 0.1.4
+collector_sidecar_pkg: "collector-sidecar_{{collector_sidecar_version}}-1_amd64.deb"
+collector_sidecar_pkg_path: "/root"
+collector_sidecar_send_status: True
+collector_sidecar_server_url: http://localhost:9000/api/
+collector_sidecar_update_interval: 30
+collector_sidecar_tls_skip_verify: True
+collector_sidecar_list_log_files:
+  - /var/log
+collector_sidecar_node_id: "{{ ansible_hostname }}"
+collector_sidecar_collector_id: file:/etc/graylog/collector-sidecar/collector-id
+collector_sidecar_log_path: /var/log/graylog/collector-sidecar
+collector_sidecar_log_rotation_time: 86400
+collector_sidecar_log_max_age: 604800
+collector_sidecar_tags:
+  - linux
+collector_sidecar_backends:
+  - name: filebeat
+    enabled: true
+    binary_path: /usr/bin/filebeat
+    configuration_path: /etc/graylog/collector-sidecar/generated/filebeat.yml
+collector_sidecar_service_start_limit_interval: 5
+collector_sidecar_service_start_limit_burst: 10
+collector_sidecar_service_environment_file: -/etc/sysconfig/collector-sidecar
+collector_sidecar_service_executable_file: /usr/bin/graylog-collector-sidecar
+collector_sidecar_service_restart: always
+collector_sidecar_service_restart_sec: 120
+
+
+
+
+
+
+
+
+
+
+
+
+
+

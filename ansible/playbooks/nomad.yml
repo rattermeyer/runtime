@@ -16,6 +16,7 @@
       nomad_vault: True
       nomad_vault_ca_file: "/etc/nomad/ssl/ca.pem"
       nomad_vault_token: "{{nomad_token.auth.client_token}}"
+      become: True
 - hosts: nomad_nodes
   tasks:
   - name: install opendjk8

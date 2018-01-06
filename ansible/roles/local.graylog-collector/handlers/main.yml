@@ -1,0 +1,13 @@
+- name: reload collector sidecar
+  service:
+    name: collector-sidecar
+    state: reloaded
+  become: True
+
+- name: systemd reload collector sidecar
+  systemd:
+    state: reloaded
+    name: collector-sidecar
+    daemon_reload: True
+  become: True
+
