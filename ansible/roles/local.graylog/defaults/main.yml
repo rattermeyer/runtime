@@ -1,5 +1,5 @@
 # Installation
-graylog_version: '2.3'
+graylog_version: '2.4'
 graylog_apt_deb_url:           "https://packages.graylog2.org/repo/packages/graylog-{{ graylog_version }}-repository_latest.deb"
 graylog_not_testing:           True
 # General

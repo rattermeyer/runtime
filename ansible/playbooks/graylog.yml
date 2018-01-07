@@ -1,5 +1,6 @@
 ---
 - hosts: graylog_servers
+  serial: 1
   vars:
     graylog_tls_src_dir: /home/vagrant/pki
     graylog_tls_dest_dir: /etc/graylog/ssl
@@ -46,3 +47,4 @@
     - role: local.graylog
       graylog_rest_tls_cert_file: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_cert}}"
       graylog_rest_tls_key_file:  "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}"
+      graylog_elasticsearch_hosts: "{{ groups['es_master_nodes'] | map('extract', hostvars, 'ansible_host')|list | map('regex_replace', '(.*)', 'http://\\1:9200') | list | join(',')}}"

@@ -66,6 +66,12 @@
   become: True
   notify: restart graylog-server
 
+- name: Ensure graylog-server service is started
+  service:
+    name: graylog-server
+    state: started
+  become: True
+
 - name: Graylog server should start after reboot
   file:
     path: '/etc/init/graylog-server.override'

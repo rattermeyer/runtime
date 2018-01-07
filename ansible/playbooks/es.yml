@@ -3,6 +3,7 @@
   roles:
     - role: elastic.elasticsearch
       become: True
+      es_version: 5.6.5
       es_instance_name: "node1"
       es_heap_size: "1g"
       es_config: {
