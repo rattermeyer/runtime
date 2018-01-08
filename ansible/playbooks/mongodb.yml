@@ -1,6 +1,16 @@
 ---
 - hosts: mongo
-
+  pre_tasks:
+  - name: check apt key
+    apt_key:
+      url: "{{ item.url }}"
+      id: "{{ item.id }}"
+      state: present
+    with_items:
+    - { url: "https://www.mongodb.org/static/pgp/server-3.2.asc", id: EA312927 }
+    - { url: "https://www.mongodb.org/static/pgp/server-3.6.asc", id: 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5 }
+    - { url: "https://www.mongodb.org/static/pgp/server-3.4.asc", id: 0C49F3730359A14518585931BC711F9BA15703C6}
+    become: True
   roles:
     - role: greendayonfire.mongodb
       become: True
