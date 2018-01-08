@@ -1,5 +1,10 @@
 - hosts: dockerhosts
   tasks:
+  - name: "ensure docker-py is installed"
+    pip:
+      name: docker-py
+    become: True
+
   - name: "start cadvisor container"
     become: True
     docker_container:
@@ -20,6 +25,7 @@
     become: True
     pip:
       name: python-consul
+  
   - name: register cadvisor service
     consul:
       service_name: cadvisor
