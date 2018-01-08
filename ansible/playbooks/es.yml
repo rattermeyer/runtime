@@ -11,7 +11,7 @@
         discovery.zen.ping.unicast.hosts: "192.168.56.21:9300,192.168.56.22:9300,192.168.56.23:9300",
         http.port: 9200,
         transport.tcp.port: 9300,
-        node.data: false,
+        node.data: true,
         node.master: true,
         bootstrap.memory_lock: false,
         network.host: "_local_,_enp0s8_",
