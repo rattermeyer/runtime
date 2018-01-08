@@ -1,7 +1,10 @@
+# because initially there could be no configuration
+# we ignore the error
+# TODO: better, if we provide an initial configuration?
 - name: reload collector sidecar
   service:
     name: collector-sidecar
-    state: reloaded
+    state: restarted
   become: True
 
 - name: systemd reload collector sidecar
@@ -10,4 +13,5 @@
     name: collector-sidecar
     daemon_reload: True
   become: True
+  ignore_errors: True 
 
