@@ -22,5 +22,6 @@
       volumes:
       - "/etc/prometheus:/etc/prometheus"
       - "/etc/consul/ssl/ca.pem:/etc/consul/ssl/ca.pem"
+      - "/etc/nomad/ssl:/etc/nomad/ssl"
       restart_policy: unless-stopped
       restart: True

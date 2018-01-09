@@ -34,3 +34,24 @@ scrape_configs:
       services: ['node_exporter', 'cadvisor']
       tls_config:
         ca_file: /etc/consul/ssl/ca.pem
+
+  - job_name: 'nomad_metrics'
+    scrape_interval: 1m
+    scheme: https
+    consul_sd_configs:
+    - server: '{{ansible_host}}:8543'
+      scheme: 'https'
+      services: ['nomad-client', 'nomad']
+      tls_config:
+        ca_file: /etc/consul/ssl/ca.pem
+    metrics_path: /v1/metrics
+    params:
+      format: ['prometheus']
+    relabel_configs:
+    - source_labels: ['__meta_consul_tags']
+      regex: '(.*)http(.*)'
+      action: keep
+    tls_config:
+      ca_file: /etc/nomad/ssl/ca.pem
+      cert_file: /etc/nomad/ssl/client.global.nomad.pem
+      key_file: /etc/nomad/ssl/client.global.nomad-key.pem
