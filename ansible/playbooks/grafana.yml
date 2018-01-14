@@ -40,6 +40,5 @@
       service_port: 3000
       tags:
       - urlprefix-grafana.nomad.cluster/
-      - "urlprefix-/grafana strip=/grafana"
       http: "http://{{ ansible_host }}:3000/"
       interval: 30s
