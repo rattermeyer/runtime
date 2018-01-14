@@ -18,10 +18,21 @@
     graylog_web_listen_uri: "http://{{graylog_rest_bind_ip}}:9000/"
     graylog_rest_listen_uri: "http://{{graylog_rest_bind_ip}}:9000/api/"
   pre_tasks:
+  - name: ensure group graylog exists
+    group:
+      name: graylog
+    become: True
+  - name: ensure user graylog exists
+    user:
+      name: graylog
+    become: True
+
   - name: create target dir
     file:
       path: "{{ graylog_tls_dest_dir }}"
       state: directory
+      owner: graylog
+      group: graylog
       mode: 0755
     become: True
   - name: Copy key material
@@ -29,10 +40,52 @@
     copy:
       src: "{{ item.src }}"
       dest: "{{ item.dest }}"
+      owner: graylog 
+      group: graylog
     with_items:
       - { src: "{{ graylog_tls_src_dir }}/{{graylog_tls_ca_cert}}", dest: "{{ graylog_tls_dest_dir }}/{{graylog_tls_ca_cert}}" }
       - { src: "{{ graylog_tls_src_dir }}/{{graylog_tls_server_cert}}", dest: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_cert}}" }
       - { src: "{{ graylog_tls_src_dir }}/{{graylog_tls_server_key}}", dest: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}" }
+  
+  # graylog only supports pkcs8
+  - name: convert pkcs5 key to pkcs8 format
+    command: "openssl pkcs8 -in {{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}} -topk8 -nocrypt -out {{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}.pkcs8"
+    args:
+      creates: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}.pkcs8"
+    become: True
+
+  - name: correct user / permissions
+    file: 
+      path: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}.pkcs8"
+      owner: graylog
+      group: graylog
+    become: True
+
+  - name: Remove certificate with given alias from a keystore
+    java_cert:
+      cert_path: "{{ graylog_tls_dest_dir }}/{{item.cert}}"
+      cert_alias: "{{item.alias}}"
+      keystore_path: /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
+      keystore_pass: changeit
+      state: absent
+    become: True
+    with_items:
+    - {cert: "{{graylog_tls_ca_cert}}", alias: opendp-ca }
+    - {cert: "{{graylog_tls_server_cert}}", alias: graylog-self-signed }
+    
+
+  - name: import ca cert to java keystore
+    java_cert:
+      cert_path: "{{ graylog_tls_dest_dir }}/{{item.cert}}"
+      cert_alias: "{{ item.alias }}" 
+      keystore_path: /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/cacerts
+      keystore_pass: changeit
+    become: True
+    with_items:
+    - {cert: "{{graylog_tls_ca_cert}}", alias: opendp-ca }
+    - {cert: "{{graylog_tls_server_cert}}", alias: graylog-self-signed }
+    
+
   - name: create mongodb graylog db
     mongodb_user:
       database: "{{graylog_mongodb_db}}"
@@ -45,6 +98,10 @@
       state: present
   roles:
     - role: local.graylog
+      graylog_rest_enable_tls: True
       graylog_rest_tls_cert_file: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_cert}}"
-      graylog_rest_tls_key_file:  "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}"
+      graylog_rest_tls_key_file:  "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}.pkcs8"
       graylog_elasticsearch_hosts: "{{ groups['es_master_nodes'] | map('extract', hostvars, 'ansible_host')|list | map('regex_replace', '(.*)', 'http://\\1:9200') | list | join(',')}}"
+      graylog_web_enable_tls: True
+      graylog_web_tls_cert_file: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_cert}}"
+      graylog_web_tls_key_file: "{{ graylog_tls_dest_dir }}/{{graylog_tls_server_key}}"

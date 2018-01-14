@@ -105,7 +105,7 @@ rest_enable_gzip = {{ graylog_rest_enable_gzip }}
 # Enable HTTPS support for the REST API. This secures the communication with the REST API with
 # TLS to prevent request forgery and eavesdropping. This is disabled by default. Uncomment the
 # next line to enable it.
-rest_enable_tls = {{ graylog_rest_enable_tls }}
+rest_enable_tls = {{ graylog_rest_enable_tls | lower }}
 
 # The X.509 certificate chain file in PEM format to use for securing the REST API.
 rest_tls_cert_file = {{ graylog_rest_tls_cert_file }}
@@ -114,7 +114,9 @@ rest_tls_cert_file = {{ graylog_rest_tls_cert_file }}
 rest_tls_key_file = {{ graylog_rest_tls_key_file }}
 
 # The password to unlock the private key used for securing the REST API.
+{% if graylog_rest_tls_key_password %}
 rest_tls_key_password = {{ graylog_rest_tls_key_password }}
+{% endif %}
 
 # The maximum size of the HTTP request headers in bytes.
 rest_max_header_size = {{ graylog_rest_max_header_size }}
@@ -135,7 +137,7 @@ trusted_proxies = {{ graylog_trusted_proxies }}
 
 # Enable the embedded Graylog web interface.
 # Default: true
-web_enable = {{ graylog_web_enable }}
+web_enable = {{ graylog_web_enable | lower }}
 
 # Web interface listen URI.
 # Configuring a path for the URI here effectively prefixes all URIs in the web interface. This is a replacement
@@ -152,16 +154,16 @@ web_endpoint_uri = {{ graylog_web_endpoint_uri }}
 
 # Enable CORS headers for the web interface. This is necessary for JS-clients accessing the server directly.
 # If these are disabled, modern browsers will not be able to retrieve resources from the server.
-web_enable_cors = {{ graylog_enable_cors }}
+web_enable_cors = {{ graylog_enable_cors | lower }}
 
 # Enable/disable GZIP support for the web interface. This compresses HTTP responses and therefore helps to reduce
 # overall round trip times. This is enabled by default. Uncomment the next line to disable it.
-web_enable_gzip = {{ graylog_enable_gzip }}
+web_enable_gzip = {{ graylog_enable_gzip | lower }}
 
 # Enable HTTPS support for the web interface. This secures the communication of the web browser with the web interface
 # using TLS to prevent request forgery and eavesdropping.
 # This is disabled by default. Uncomment the next line to enable it and see the other related configuration settings.
-web_enable_tls = {{ graylog_web_enable_tls }}
+web_enable_tls = {{ graylog_web_enable_tls | lower }}
 
 # The X.509 certificate chain file in PEM format to use for securing the web interface.
 web_tls_cert_file = {{ graylog_web_tls_cert_file }}
@@ -170,7 +172,9 @@ web_tls_cert_file = {{ graylog_web_tls_cert_file }}
 web_tls_key_file = {{ graylog_web_tls_key_file }}
 
 # The password to unlock the private key used for securing the web interface.
+{% if graylog_web_tls_key_password %}
 web_tls_key_password = {{ graylog_web_tls_key_password }}
+{% endif %}
 
 # The maximum size of the HTTP request headers in bytes.
 web_max_header_size = {{ graylog_web_max_header_size }}
@@ -197,11 +201,11 @@ no_retention = {{ graylog_no_retention }}
 
 # Do you want to allow searches with leading wildcards? This can be extremely resource hungry and should only
 # be enabled with care. See also: http://docs.graylog.org/en/2.1/pages/queries.html
-allow_leading_wildcard_searches = {{ graylog_allow_leading_wildcard_searches }}
+allow_leading_wildcard_searches = {{ graylog_allow_leading_wildcard_searches | lower }}
 
 # Do you want to allow searches to be highlighted? Depending on the size of your messages this can be memory hungry and
 # should only be enabled after making sure your Elasticsearch cluster has enough memory.
-allow_highlighting = {{ graylog_allow_highlighting }}
+allow_highlighting = {{ graylog_allow_highlighting | lower }}
 
 # List of Elasticsearch hosts Graylog should connect to.
 # Need to be specified as a comma-separated list of valid URIs for the http ports of your elasticsearch nodes.
@@ -279,7 +283,7 @@ inputbuffer_processors = {{ graylog_inputbuffer_processors }}
 inputbuffer_wait_strategy = {{ graylog_inputbuffer_wait_strategy }}
 
 # Enable the disk based message journal.
-message_journal_enabled = {{ graylog_message_journal_enabled }}
+message_journal_enabled = {{ graylog_message_journal_enabled | lower }}
 
 # The directory which will be used to store the message journal. The directory must me exclusively used by Graylog and
 # must not contain any other files than the ones created by Graylog itself.
@@ -364,7 +368,7 @@ mongodb_threads_allowed_to_block_multiplier = {{ graylog_mongodb_threads_allowed
 rules_file = {{ graylog_rules_file }}
 
 # Email transport
-transport_email_enabled = {{ graylog_transport_email_enabled }}
+transport_email_enabled = {{ graylog_transport_email_enabled | lower }}
 transport_email_hostname = {{ graylog_transport_email_hostname }}
 transport_email_port = {{ graylog_transport_email_port }}
 transport_email_use_auth = {{ graylog_transport_email_use_auth }}
@@ -420,7 +424,7 @@ disable_sigar = {{ graylog_disable_sigar }}
 dashboard_widget_default_cache_time = {{ graylog_dashboard_widget_default_cache_time }}
 
 # Automatically load content packs in "content_packs_dir" on the first start of Graylog.
-content_packs_loader_enabled = {{ graylog_content_packs_loader_enabled }}
+content_packs_loader_enabled = {{ graylog_content_packs_loader_enabled | lower }}
 
 # The directory which contains content packs which should be loaded on the first start of Graylog.
 content_packs_dir = {{ graylog_content_packs_dir }}

@@ -25,7 +25,7 @@ graylog_rest_enable_gzip:             'True'
 graylog_rest_enable_tls:              'False'
 graylog_rest_tls_cert_file:           '/path/to/graylog.crt'
 graylog_rest_tls_key_file:            '/path/to/graylog.key'
-graylog_rest_tls_key_password:        'secret'
+graylog_rest_tls_key_password:        ''
 graylog_rest_max_header_size:         8192
 graylog_rest_max_initial_line_length: 4096
 graylog_rest_thread_pool_size:        16
