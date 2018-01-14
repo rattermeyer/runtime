@@ -1,0 +1,10 @@
+---
+- hosts: felb-servers
+  roles:
+  - role: local.fabio
+    fabio_properties_proxy_addr: ":443;cs=fabio_default;tlsmin=tls12"
+    fabio_properties_additional:
+      proxy.cs: "cs=fabio_default;type=file;cert=/etc/fabio.d/ssl/fabio.service.consul.pem;key=/etc/fabio.d/ssl/fabio.service.consul-key.pem"
+      proxy.localip: 192.168.56.21
+      ui.access: ro
+

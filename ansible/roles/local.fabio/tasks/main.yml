@@ -1,0 +1,137 @@
+- name: Create Fabio directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ fabio_download_dir }}"
+    - "{{ fabio_directories_config }}"
+    - "{{ fabio_directories_install }}"
+    - "{{ fabio_directories_log }}"
+    - "{{ fabio_directories_config }}/ssl"
+  when: fabio_create_directories
+  become: True
+
+- name: Get hashicorp gpg key file from keybase
+  get_url:
+    url: https://keybase.io/hashicorp/key.asc
+    dest: "{{ fabio_download_dir }}/hashicorp.asc"
+    validate_certs: "{{ fabio_validate_certs }}"
+  when: fabio_verify_checksum_signature
+  become: True
+
+- name: install gnupg package
+  package:
+    name: gnupg
+    state: present
+  when: fabio_verify_checksum_signature
+
+- name: import hashicorp gpg key
+  command: gpg --import "{{ fabio_download_dir }}/hashicorp.asc"
+  changed_when: no
+  when: fabio_verify_checksum_signature
+
+- name: Get fabio checksum signature file
+  get_url:
+    url: "{{ fabio_signature_url }}"
+    dest: "{{ fabio_download_dir }}/{{ fabio_signature_file }}"
+    validate_certs: "{{ fabio_validate_certs }}"
+    force: yes
+  when: fabio_verify_checksum_signature
+  become: True
+
+- name: Get fabio checksums file
+  get_url:
+    url: "{{ fabio_checksum_file_url }}"
+    dest: "{{ fabio_download_dir }}/{{ fabio_checksum_file }}"
+    validate_certs: "{{ fabio_validate_certs }}"
+  become: True
+
+- name: Verify checksum file
+  shell: >
+    gpg --batch --verify {{ fabio_download_dir }}/{{ fabio_signature_file }} {{ fabio_download_dir }}/{{ fabio_checksum_file }}
+  changed_when: no
+  register: gpg_check
+  when: fabio_verify_checksum_signature
+  failed_when: gpg_check.rc == 1
+  
+- name: Get checksum of fabio binary
+  shell: >
+    grep {{ fabio_pkg }} {{ fabio_download_dir }}/{{ fabio_checksum_file }}
+  register: chksum
+  changed_when: False
+
+- name: Download fabio binary
+  get_url:
+    url: "{{ fabio_pkg_url }}"
+    dest: "{{ fabio_binary_path}}/fabio"
+    mode: 0755
+    checksum: "sha256:{{ chksum.stdout.split(' ')|first }}"
+    validate_certs: "{{ fabio_validate_certs }}"
+  become: True
+
+- name: copy fabio key material
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items: "{{ fabio_tls_key_material }}"
+  become: True
+
+- name: Create fabio group
+  group:
+    name: fabio
+    system: yes
+    state: present
+  become: True
+
+- name: Create fabio user
+  user:
+    name: fabio
+    comment: "fabio router"
+    shell: /bin/false
+    home: "/opt/fabio"
+    group: fabio
+    system: yes
+  state: present
+  become: True
+
+- name: Allow Fabio to bind to lower ports as non-privileged user
+  capabilities:
+    path: "{{ fabio_binary_path }}/fabio"
+    capability: cap_net_bind_service=+ep
+  state: present
+  become: True
+
+- name: Chown some directories for fabio user
+  file:
+    group: fabio
+    owner: fabio
+    path: "{{ item }}"
+    recurse: yes
+    state: directory
+  with_items:
+  - "{{ fabio_directories_config }}"
+  - "{{ fabio_directories_log }}"
+  become: True
+
+- name: Create Fabio config
+  template:
+    dest: "{{ fabio_directories_config }}/fabio.properties"
+    src: fabio.properties.j2
+  when: fabio_configure
+  become: True
+  notify:
+    - restart fabio
+
+- name: Install Fabio Systemd service
+  template:
+    dest: /etc/systemd/system/fabio.service
+    mode: 0755
+    src: fabio.service.j2
+  become: True
+  when: ansible_service_mgr == "systemd"
+
+- name: Start Fabio service
+  service:
+    state: started
+    name: fabio
+  become: True
