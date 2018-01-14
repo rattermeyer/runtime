@@ -54,6 +54,11 @@
         - 192.168.56.21
         - 192.168.56.22
         - 192.168.56.23
+      - cname: fabio.service.consul
+        include_localhost: True
+        sans:
+        - "*.fabio.service.consul"
+        - "*.nomad.cluster"
     pki_clients:
     - consul-worker1
     - consul-worker2
