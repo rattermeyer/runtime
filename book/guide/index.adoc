@@ -1,0 +1,11 @@
+// Includes all the rest
+:toc:
+:toclevels: 3
+:imagesdir: ./assets/images
+:linkattrs:
+:source-highlighter: pygments
+:icons: font
+
+:numbered:
+
+include::vagrant.adoc[]

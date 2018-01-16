@@ -1,0 +1,74 @@
+== Vagrant
+
+We will use a https://vagrantup.com[Vagrant] / https://www.virtualbox.org[VirtualBox] combination to create a multi-machine setup suitable for developing our
+platform.
+
+CAUTION: Be sure, that your vagrant version supports your VirtualBox version.
+The currently supported VirtualBox versions are listed in the https://www.vagrantup.com/docs/virtualbox/[Provider] section.
+
+So let's start with defining the controller.
+
+[source,ruby]
+----
+include::../../Vagrantfile[tag=controller,indent=0]
+----
+<1> The "canonical" ubuntu box does not comply with vagrant requirements
+<2> on windows, the synced folders do not protect ssh keys strict enough, therefore we must specify specific directory and file modes
+<3> This allows grouping all VMs under one group in VirtualBox UI
+<4> This triggers installation of ansible in the controller
+
+We use the controller to be able to work the same way under Linux and Windows hosts.
+Ansible does not support Windows as a controller host, so we need a solution for Windows, and
+a small VM is the best solution. This should not be directly located on one of
+the other managed hosts.
+
+You should be able to enter
+
+[source,bash]
+----
+vagrant up
+vagrant ssh controller
+----
+
+into your command line. This will present you with a prompt
+[source,bash]
+----
+vagrant@controller:~$
+----
+
+For Windows, this works only, if you have `ssh` installed in you path, e.g.
+when you enabled this option when installing git. If you do not have ssh
+in your path, you need to log in with another ssh client, e.g. PuTTY.
+Vagrant handily provides you with the necessary information, but you
+can request the information also manually.
+
+If you enter on the host `vagrant ssh-config controller`, vagrant will provide
+you with basic information
+
+[source,bash]
+----
+$ vagrant ssh-config controller
+Host controller
+  HostName 127.0.0.1
+  User vagrant
+  Port 2204 # <1>
+  UserKnownHostsFile /dev/null
+  StrictHostKeyChecking no
+  PasswordAuthentication no
+  IdentityFile D:/noscan/git/opendp/runtime/.vagrant/machines/controller/virtualbox/private_key # <2>
+  IdentitiesOnly yes
+  LogLevel FATAL
+----
+<1> This is the port to connect with PuTTY to. So, you could connect to 127.0.0.1:2204 to enter the `controller` VM.
+<2> This shows where the private key of the vagrant user is located.
+
+If you want to use the private key at location (2), it must be protected from
+the host point of view according to the ssh private key handling rules.
+This is the reason, why we must specify `dmode` and `fmode` when mouting the `.vagrant`
+director.
+
+
+=== Forwarding DNS queries
+
+==== dnsmasq setup on Linux host
+==== DNSAgent setup on windows host
