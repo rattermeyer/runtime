@@ -54,7 +54,7 @@
           uid: alice,
           cn: "alice springs",
           sn: "springs",
-          userPassword: "{{ 'alice' | password_hash('sha512')}}" 
+          userPassword: "alice" 
         }
       }
     - { 
@@ -63,7 +63,8 @@
         attributes: {
           uid: bob,
           cn: "bob andrews",
-          sn: "andrews" 
+          sn: "andrews", 
+          userPassword: "{{ 'bob' | password_hash('sha512')}}" 
         }
       }
     - { 
@@ -72,7 +73,8 @@
         attributes: {
           uid: nick,
           cn: "nick elback",
-          sn: "elback" 
+          sn: "elback", 
+          userPassword: "{{ 'nick' | password_hash('sha512')}}" 
         }
       }
     - { 
@@ -106,5 +108,10 @@
       dn: "cn=developers,ou=groups,dc=opendp,dc=org",
       name: "member",
       ldap_values: ["uid=bob,ou=users,dc=opendp,dc=org", "uid=alice,ou=users,dc=opendp,dc=org"]
+    }
+    - {
+      dn: "uid=alice,ou=users,dc=opendp,dc=org",
+      name: "userPassword",
+      ldap_values: "alice" 
     }
     tags: post_task
