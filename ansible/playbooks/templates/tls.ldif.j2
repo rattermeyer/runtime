@@ -1,0 +1,10 @@
+dn: cn=config
+changetype: modify
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: {{ openldap_tls_certificate_ca_file }}
+-
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: {{ openldap_tls_certificate_key_file }}
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: {{ openldap_tls_certificate_file }}

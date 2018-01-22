@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+database config
+# NOTE: the suffix is hardcoded as cn=config and 
+# MUST not have a suffix directive
+# normal rules apply - rootdn can be anything you want
+# but MUST be under cn=config
+rootdn "cn=admin,cn=config"
+# use any of the supported password formats e.g. {SSHA} etc
+# or plaintext as shown
+rootpw {{openldap_rootpw}}

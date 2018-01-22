@@ -24,12 +24,19 @@
 - name: creating CA CSR json
   with_items:
     - cacsr.json
-    - csr.json
     - client.json
   template:
     src: "{{item}}.j2"
     dest: "{{pki_dir}}/{{item}}"
     mode: 0600
+
+- name: creating ca csr json
+  template:
+    src: "csr.json.j2"
+    dest: "{{pki_dir}}/csr.json"
+    mode: 0600
+  vars:
+    cname: "test"
 
 - name: create CA CSR
   when: not pki_self_sign
@@ -45,17 +52,9 @@
     chdir: '{{pki_dir}}'
     creates: '{{pki_dir}}/ca.pem'
 
-- name: generating server csr.json files
+- name: generating server certs files
+  include: server.yml
   with_items: "{{pki_servers}}"
-  shell: >-
-    {{pki_cfssl_bin_directory}}/cfssl gencert
-    -ca {{pki_dir}}/ca.pem
-    -ca-key {{pki_dir}}/ca-key.pem
-    -hostname {{ ([item.cname] + (['localhost', '127.0.0.1'] if item.include_localhost is defined and item.include_localhost else []) + (item.sans|default([])) + (item.altips|default([]))) | join(",") }} csr.json
-    | {{pki_cfssl_bin_directory}}/cfssljson -bare {{item.cname}}
-  args:
-    chdir: "{{pki_dir}}"
-    creates: "{{pki_dir}}/{{item.cname}}.pem"
 
 - name: generating client csr.json files
   with_items: "{{pki_clients}}"

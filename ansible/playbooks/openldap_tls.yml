@@ -1,0 +1,46 @@
+- name: copy cert / key material
+  copy:
+    src: "/home/vagrant/pki/{{item.src}}"
+    dest: "/etc/ldap/ssl/{{item.dest | default(item.src)}}"
+    owner: openldap
+    group: openldap
+  with_items:
+    - {src: "ldap.service.consul.pem", dest: ldap.crt}
+    - {src: "ldap.service.consul-key.pem", dest: ldap.key}
+    - {src: "ca.pem", dest: "ca.crt"}
+
+- name: create certificate config ldif
+  template:
+    src: tls.ldif.j2
+    dest: /tmp/tls.ldif
+  vars:
+    openldap_tls_certificate_file: /etc/ldap/ssl/ldap.crt
+    openldap_tls_certificate_key_file: /etc/ldap/ssl/ldap.key
+    openldap_tls_certificate_ca_file: /etc/ldap/ssl/ca.crt
+  
+- name: ensure ldapmodify is installed
+  apt:
+    name: ldap-utils
+  become: True
+
+- name: Check if TLS certificate is configured
+  shell: ldapsearch -LLL -Y EXTERNAL -H ldapi:/// -b cn=config -s base 'olcTLSCertificateFile=*' olcTLSCertificateFile
+  register: openldap_register_tls_cert_search
+  changed_when: False
+
+- name: update certificate information
+  shell: ldapmodify -Y EXTERNAL -H ldapi:/// -f /tmp/tls.ldif
+  become: True
+  when: not (openldap_register_tls_cert_search.stdout | search("olcTLSCertificateFile:"))
+
+- name: config global settings - certificate
+  ldap_attr:
+    dn: "{{ item.dn }}"
+    name: "{{item.name}}"
+    values: "{{item.ldap_values}}"
+    state: "{{ item.state }}"
+  with_items:
+    - { dn: "cn=config", name: olcTLSCACertificateFile, ldap_values: "/etc/ldap/ssl/ca.crt", state: exact }
+    - { dn: "cn=config", name: olcTLSCertificateFile, ldap_values: "/etc/ldap/ssl/ldap.crt", state: exact }
+    - { dn: "cn=config", name: olcTLSCertificateKeyFile, ldap_values: "/etc/ldap/ssl/ldap.key", state: exact }
+#     - { dn: "olcDatabase={1}mdb,cn=config", name: "olcSecurity", ldap_values: ["tls=1"], state: exact } # require tls

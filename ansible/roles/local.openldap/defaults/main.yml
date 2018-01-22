@@ -1,0 +1,26 @@
+# defaults are debian-compatible
+---
+openldap_rootpw: "{SSHA}jbD/+AYniIZ4VmzFjRfOxfkguzknfcf2"
+openldap_confdir: /etc/ldap
+openldap_user: openldap
+openldap_group: openldap
+
+# under ubuntu, database directory is only allowed to be under
+# /var/lib/ldap
+# this is defined under /etc/apparmor.d/usr.sbin.slapd
+# changes to this directory would require changes to this file as well
+openldap_datadir: /var/lib/ldap
+openldap_db_engine: mdb
+openldap_db_maxsize: 1073741824
+openldap_modsdir: /usr/lib/ldap
+openldap_slapd_service_name: slapd
+openldap_slapd_exec: /usr/sbin/slapd
+openldap_slapd_pidfile: /var/run/slapd/slapd.pid
+openldap_slapd_argsfile: /var/run/slapd/slapd.args
+
+#openldap_slave_rid: 0
+openldap_schmas:
+  - core
+  - cosine
+  - inetorgperson
+  - nis
