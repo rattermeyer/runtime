@@ -25,29 +25,18 @@
         sans:
           - nomad.service.consul
         include_localhost: True
-        altips:
-        - 192.168.56.21
-        - 192.168.56.22
-        - 192.168.56.23
+        altips: "{{ groups['nomad_servers'] | map('extract', hostvars, 'ansible_host')|list}}"
       - cname: graylog.service.consul
         include_localhost: True
-        altips:
-        - 192.168.56.21
-        - 192.168.56.22
-        - 192.168.56.23
+        altips: "{{ groups['graylog_servers'] | map('extract', hostvars, 'ansible_host')|list}}"
       - cname: client.global.nomad
         include_localhost: True
-        altips:
-        - 192.168.56.24
-        - 192.168.56.25
+        altips: "{{ groups['nomad_nodes'] | map('extract', hostvars, 'ansible_host')|list}}"
       - cname: vault.service.consul
         include_localhost: True
         sans:
         - "*.vault.service.consul"
-        altips:
-        - 192.168.56.21
-        - 192.168.56.22
-        - 192.168.56.23
+        altips: "{{ groups['vault_servers'] | map('extract', hostvars, 'ansible_host')|list}}"
       - cname: registry.service.consul
         include_localhost: True
         altips:
@@ -59,6 +48,11 @@
         sans:
         - "*.fabio.service.consul"
         - "*.nomad.cluster"
+      - cname: ldap.service.consul
+        sans:
+        - "ldap0.service.consul"
+        - "ldap1.service.consul"
+        altips: "{{ groups['openldap-servers'] | map('extract', hostvars, 'ansible_host')|list}}"
     pki_clients:
     - consul-worker1
     - consul-worker2
