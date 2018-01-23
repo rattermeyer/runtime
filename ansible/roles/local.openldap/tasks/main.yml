@@ -59,6 +59,13 @@
   tags: config, openldap
   notify: restart slapd
 
+- name: configure slapd services
+  lineinfile:
+    path: "/etc/default/slapd"
+    line: 'SLAPD_SERVICES="ldap:/// ldaps:/// ldapi:///"'
+    regexp: '^SLAPD_SERVICES='
+  notify: restart slapd
+
 - name: test for slapd backends modules (for slapd.conf.j2)
   stat:
     path: '{{ openldap_modsdir }}/back_{{ item }}.la'
@@ -101,15 +108,27 @@
   wait_for:
     port: 389
 
-#- name: config global settings
-#  ldap_attr:
-#    dn: "cn=config"
-#    name: "{{item.name}}"
-#    values: "{{item.ldap_values}}"
-#    state: "{{ item.state }}"
-#  with_items:
-#    - { name: olcPasswordHash, ldap_values: ["{SSHA512}"], state: exact }
-#  tags: rtcconfig
+- name: add memberof overlay
+  ldap_attr:
+    dn: cn=module{0},cn=config
+    name: "{{ item.name }}"
+    values: "{{ item.ldap_values }}"
+    state: "{{ item.state }}"
+  with_items:
+  - { name: "olcModuleLoad", ldap_values: "{1}memberof", state: present }
+  - { name: "olcModuleLoad", ldap_values: "{2}refint", state: present }
+  - { name: "olcModuleLoad", ldap_values: "{3}pw-sha2", state: present }
+  tags: rtcconfig
+
+- name: config global settings
+  ldap_attr:
+    dn: "cn=config"
+    name: "{{item.name}}"
+    values: "{{item.ldap_values}}"
+    state: "{{ item.state }}"
+  with_items:
+    - { name: olcPasswordHash, ldap_values: ["{SSHA512}", "{SHA512}"], state: exact }
+  tags: rtcconfig
 
 - name: modify config database
   ldap_attr:
@@ -121,7 +140,6 @@
     - { name: olcRootDN, ldap_values: ["cn=admin,cn=config"], state: exact }
     - { name: olcRootPW, ldap_values: ["secret"], state: exact }
   tags: rtcconfig
-  
 
 - name: Configure directory number 1 for opendp.org
   ldap_attr:
@@ -134,17 +152,6 @@
   - { name: "olcRootDN", ldap_values: ["cn=admin,dc=opendp,dc=org"], state: exact }
   - { name: "olcRootPW", ldap_values: ["secret"], state: exact }
   - { name: "olcDbDirectory", ldap_values: ["/var/lib/ldap"], state: exact }
-  tags: rtcconfig
-
-- name: add memberof overlay
-  ldap_attr:
-    dn: cn=module{0},cn=config
-    name: "{{ item.name }}"
-    values: "{{ item.ldap_values }}"
-    state: "{{ item.state }}"
-  with_items:
-  - { name: "olcModuleLoad", ldap_values: "{1}memberof", state: present }
-  - { name: "olcModuleLoad", ldap_values: "{2}refint", state: present }
   tags: rtcconfig
 
 - name: configure refint

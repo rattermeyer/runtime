@@ -6,6 +6,7 @@
     apt:
       name: python-jmespath
     become: True
+  
   roles:
   - role: local.openldap
     openldap_schemas:
@@ -115,3 +116,39 @@
       ldap_values: "alice" 
     }
     tags: post_task
+
+  - name: ensure directory exists
+    file:
+      path: "/etc/ldap/ssl"
+      owner: openldap
+      group: openldap
+      mode: 0700
+      state: directory
+    become: True
+    tags: post_task
+
+  - name: copy cert / key material
+    copy:
+      src: "/home/vagrant/pki/{{item.src}}"
+      dest: "/etc/ldap/ssl/{{item.dest | default(item.src)}}"
+      owner: openldap
+      group: openldap
+    with_items:
+      - {src: "ldap.service.consul.pem", dest: ldap.crt}
+      - {src: "ldap.service.consul-key.pem", dest: ldap.key}
+      - {src: "ca.pem", dest: "ca.crt"}
+    tags: post_task
+
+  - name: config global settings
+    ldap_attr:
+      dn: "cn=config"
+      name: "{{item.name}}"
+      values: "{{item.ldap_values}}"
+      state: "{{ item.state }}"
+    with_items:
+      - { name: olcTLSCACertificateFile, ldap_values: "/etc/ldap/ssl/ca.crt", state: exact }
+      - { name: olcTLSCertificateFile, ldap_values: "/etc/ldap/ssl/ldap.crt", state: exact }
+      - { name: olcTLSCertificateKeyFile, ldap_values: "/etc/ldap/ssl/ldap.key", state: exact }
+    tags: post_task
+  
+
