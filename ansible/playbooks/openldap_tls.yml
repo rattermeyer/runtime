@@ -1,3 +1,13 @@
+- name: ensure directory exists
+  file:
+    path: "/etc/ldap/ssl"
+    owner: openldap
+    group: openldap
+    mode: 0700
+    state: directory
+  become: True
+  tags: post_task
+
 - name: copy cert / key material
   copy:
     src: "/home/vagrant/pki/{{item.src}}"
