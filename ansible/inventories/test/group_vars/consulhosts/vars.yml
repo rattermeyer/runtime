@@ -1,0 +1,2 @@
+consul_acl_master_token: "{{vault_consul_acl_master_token}}"
+consul_acl_vault_token: "{{vault_consul_acl_vault_token}}"

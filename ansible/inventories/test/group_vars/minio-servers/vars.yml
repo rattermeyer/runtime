@@ -1,0 +1,2 @@
+minio_secret_key: "{{vault_minio_secret_key}}"
+minio_access_key: "{{vault_minio_access_key}}"
