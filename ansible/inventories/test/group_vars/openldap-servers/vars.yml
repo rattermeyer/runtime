@@ -1,0 +1,3 @@
+ldap_admin_password: "{{vault_ldap_admin_password}}"
+ldap_config_password: "{{vault_ldap_config_password}}}"
+ldap_readonly_user_password: "{{vault_ldap_config_password}}"
