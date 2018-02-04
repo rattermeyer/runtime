@@ -1,0 +1,3 @@
+vault_keycloak_user: kcadm
+vault_keycloak_password: kcadm1234
+vault_keycloak_loglevel: INFO

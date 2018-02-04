@@ -1,0 +1,57 @@
+---
+#
+# This playbook installs keycloak as a docker container using the official image.
+# The official image does not provide TLS support
+# Therefore, we decicded to use nginx-proxy (instead of extending the image)
+# keycloak itself is only accessible from the host (no ports exposed externally)
+# the nginx proxy and keycloak are located on a "private" internal network and
+# can therefore see each other
+#
+
+- hosts: keycloak-servers
+  tasks:
+  - name: ensure docker-py is installed
+    pip:
+      name: "{{item}}"
+    with_items:
+    - docker-py
+    - python-consul
+    become: True
+
+  - name: create internal network
+    docker_network:
+      name: keycloak
+    become: True
+  - name: keycloak container
+    docker_container:
+      name: keycloak
+      image: jboss/keycloak:3.4.3.Final
+      networks:
+      - name: keycloak
+      purge_networks: True
+      env:
+        KEYCLOAK_USER: "{{keycloak_user}}"
+        KEYCLOAK_PASSWORD: "{{keycloak_password}}"
+        KEYCLOAK_LOGLEVEL: "{{keycloak_loglevel}}"
+        VIRTUAL_HOST: keycloak.service.consul
+    become: True
+
+  - name: nginx-proxy
+    docker_container:
+      name: keycloak-proxy
+      image: jwilder/nginx-proxy
+      ports:
+      - "8080:80"
+      volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      networks:
+      - name: keycloak
+    become: True
+
+  - name: register keycloak
+    consul:
+      service_name: keycloak
+      service_port: 8080
+      http: http://localhost:8080
+      interval: 60s
+    become: True
