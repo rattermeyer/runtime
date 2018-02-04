@@ -52,6 +52,4 @@
     consul:
       service_name: keycloak
       service_port: 8080
-      http: http://localhost:8080
-      interval: 60s
     become: True
