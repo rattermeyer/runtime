@@ -1,3 +1,4 @@
 keycloak_user: "{{vault_keycloak_user}}"
 keycloak_password: "{{vault_keycloak_password}}"
 keycloak_loglevel: "{{vault_keycloak_loglevel}}"
+keycloak_certs_dest_fullpath: /etc/keycloak/ssl

@@ -53,6 +53,10 @@
         - "ldap0.service.consul"
         - "ldap1.service.consul"
         altips: "{{ groups['openldap-servers'] | map('extract', hostvars, 'ansible_host')|list}}"
+      - cname: keycloak.service.consul
+        sans:
+        - "*.keycloak.service.consul"
+        altips: "{{ groups['keycloak-servers'] | map('extract', hostvars, 'ansible_host')|list}}"
     pki_clients:
     - consul-worker1
     - consul-worker2

@@ -34,7 +34,25 @@
         KEYCLOAK_PASSWORD: "{{keycloak_password}}"
         KEYCLOAK_LOGLEVEL: "{{keycloak_loglevel}}"
         VIRTUAL_HOST: keycloak.service.consul
+        PROXY_ADDRESS_FORWARDING: "true"
     become: True
+
+  - name: create path
+    file:
+      path: "{{keycloak_certs_dest_fullpath}}"
+      state: directory
+    become: True
+
+  - name: copy key material to keycloak server
+    copy:
+      src: "/home/vagrant/pki/{{item.src}}"
+      dest: "{{keycloak_certs_dest_fullpath}}/{{item.dest|default(item.src)}}"
+      mode: "{{item.mode|default('644')}}"
+    become: True
+    with_items:
+      - {src: "keycloak.service.consul.pem", dest: "keycloak.service.consul.crt"}
+      - {src: "keycloak.service.consul-key.pem", dest: "keycloak.service.consul.key", mode: "0600"}
+      - {src: "ca.pem", dest: "ca.crt"}
 
   - name: nginx-proxy
     docker_container:
@@ -42,7 +60,9 @@
       image: jwilder/nginx-proxy
       ports:
       - "8080:80"
+      - "443:443"
       volumes:
+      - "{{keycloak_certs_dest_fullpath}}:/etc/nginx/certs:ro"
       - /var/run/docker.sock:/tmp/docker.sock:ro
       networks:
       - name: keycloak
@@ -51,5 +71,5 @@
   - name: register keycloak
     consul:
       service_name: keycloak
-      service_port: 8080
+      service_port: 8443
     become: True
