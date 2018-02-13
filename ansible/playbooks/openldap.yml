@@ -17,7 +17,7 @@
       - rfc2739
     openldap_bases:
       - rootdn: cn=admin
-        suffix: dc=org,dc=opendp
+        suffix: dc=opendp,dc=org
         indexes:
           - [ "uid,uidNumber,gidNumber,memberUID", "pres,eq" ]
   post_tasks:
@@ -26,6 +26,9 @@
       dn: "{{ item.dn }}"
       objectClass: "{{ item.objectclass }}"
       attributes: "{{ item.attributes }}"
+      bind_dn: cn=admin,dc=opendp,dc=org
+      bind_pw: secret
+      server_uri: ldap://192.168.56.22/
     with_items:
     - { dn: "dc=opendp,dc=org",
         objectclass: ["dcObject", "organization"],
