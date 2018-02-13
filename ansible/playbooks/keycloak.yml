@@ -22,10 +22,13 @@
     docker_network:
       name: keycloak
     become: True
+  
   - name: keycloak container
     docker_container:
       name: keycloak
-      image: jboss/keycloak:3.4.3.Final
+      image: rattermeyer/keycloak-truststore:latest
+      # As soon as we have a configuration available, we will import it here
+      #      command: ["-b", "0.0.0.0", "-Dkeycloak.import=/opt/jboss/keycloak/${KEYCLOAK_IMPORT_REALM}"]
       networks:
       - name: keycloak
       purge_networks: True

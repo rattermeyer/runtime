@@ -62,3 +62,17 @@
     - consul-worker2
     - consul-worker3
     - consul-controller
+  tasks:
+  - name: install openjdk
+    apt:
+      name: openjdk-8-jdk
+    tags: create_truststore
+    become: True
+  - name: import certificate
+    java_cert:
+      cert_path: /home/vagrant/pki/ca.pem
+      cert_alias: default
+      keystore_path: /home/vagrant/pki/truststore.jks
+      keystore_create: True
+      keystore_pass: changeit
+    tags: create_truststore
