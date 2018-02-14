@@ -6,6 +6,17 @@
     apt:
       name: python-jmespath
     become: True
+
+  - name: enable ldap
+    lineinfile:
+      path: /etc/default/slapd
+      regexp: "^SLAPD_SERVICES"
+      line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+  
+  - name: restart slapd
+    service:
+      name: slapd
+      state: restarted
   
   roles:
   - role: local.openldap
