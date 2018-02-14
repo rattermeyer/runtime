@@ -67,7 +67,7 @@
           uid: alice,
           cn: "alice springs",
           sn: "springs",
-          userPassword: "alice" 
+          userPassword: "{SSHA}h6h0/xHfm6f341edbgYbZRlCo3wfPFTS" # alice
         }
       }
     - { 
@@ -77,7 +77,7 @@
           uid: bob,
           cn: "bob andrews",
           sn: "andrews", 
-          userPassword: "{{ 'bob' | password_hash('sha512')}}" 
+          userPassword: "{SSHA}p9AEzCP/uCHV3Szpw/Hhbq9CRV18CVxL" # bob 
         }
       }
     - { 
@@ -87,7 +87,7 @@
           uid: nick,
           cn: "nick elback",
           sn: "elback", 
-          userPassword: "{{ 'nick' | password_hash('sha512')}}" 
+          userPassword: "{SSHA}DpJ+anPij+H/6PWEaLsYMgvmo5n2umPA" # nick
         }
       }
     - { 
