@@ -70,9 +70,12 @@
     become: True
   - name: import certificate
     java_cert:
-      cert_path: /home/vagrant/pki/ca.pem
-      cert_alias: default
+      cert_path: "{{item.cert_path}}"
+      cert_alias: "{{item.cert_alias}}"
       keystore_path: /home/vagrant/pki/truststore.jks
       keystore_create: True
       keystore_pass: changeit
+    with_items:
+    - { cert_path: /home/vagrant/pki/ca.pem, cert_alias: 'default'}
+    - { cert_path: /home/vagrant/pki/ldap.service.consul.pem, cert_alias: 'ldap'}
     tags: create_truststore

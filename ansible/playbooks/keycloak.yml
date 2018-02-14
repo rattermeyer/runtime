@@ -9,6 +9,10 @@
 #
 
 - hosts: keycloak-servers
+  vars:
+    keycloak_tls_src_dir: /home/vagrant/pki
+    keycloak_tls_truststore: truststore.jks
+    keycloak_recreate: False
   tasks:
   - name: ensure docker-py is installed
     pip:
@@ -23,6 +27,19 @@
       name: keycloak
     become: True
   
+  - name: create directory
+    file:
+      path: /etc/keycloak
+      mode: 0755
+      state: directory
+    become: True
+
+  - name: copy truststore
+    copy:
+      src: "{{keycloak_tls_src_dir}}/{{keycloak_tls_truststore}}"
+      dest: /etc/keycloak/truststore.jks
+    become: True
+
   - name: keycloak container
     docker_container:
       name: keycloak
@@ -32,12 +49,17 @@
       networks:
       - name: keycloak
       purge_networks: True
+      volumes:
+      - "/etc/keycloak/truststore.jks:/etc/keycloak/truststore.jks"
       env:
         KEYCLOAK_USER: "{{keycloak_user}}"
         KEYCLOAK_PASSWORD: "{{keycloak_password}}"
         KEYCLOAK_LOGLEVEL: "{{keycloak_loglevel}}"
+        TRUSTSTORE_DISABLED: false
+        TRUSTSTORE: /etc/keycloak/truststore.jks 
         VIRTUAL_HOST: keycloak.service.consul
         PROXY_ADDRESS_FORWARDING: "true"
+      recreate: "{{keycloak_recreate}}"
     become: True
 
   - name: create path
