@@ -10,7 +10,7 @@
     - role: angstwad.docker_ubuntu
       daemon_json:
         log-level: debug
-        dns: ["{{ansible_default_ipv4.address}}","8.8.8.8", "8.8.4.4"]
+        dns: ["{{ansible_host}}","8.8.8.8", "8.8.4.4"]
 
 #      pip_version_docker_compose: 1.9.0
 #      docker_dns: ["{{ansible_docker0.ipv4.address}}","8.8.8.8", "8.8.4.4"]
