@@ -2,6 +2,7 @@
 ---
 # default: change4me
 # you can generate a password hash using `slappasswd -h {SSHA} -s change4me`
+# TODO: check if this is used at all
 openldap_rootpw: "{SSHA}hNScvQAWLLcWjE6EdUqxdNOsZboxV4TD"
 openldap_confdir: /etc/ldap
 openldap_user: openldap
