@@ -1,0 +1,21 @@
+- hosts: smtp-servers
+  tasks:
+  - name: ensure docker-py is installed
+    pip:
+      name: "{{item}}"
+    with_items:
+    - docker-py
+    - python-consul
+    become: True
+
+  # mailslurper image only has a latest tag
+  # TODO: provide custom mailslurper image
+  - name: start mailslurper
+    docker_container:
+      image: rattermeyer/mailslurper:1.12.1
+      name: mailslurper
+      ports:
+      - "8080:8080"
+      - "8085:8085"
+      - "2500:2500"
+    become: True
