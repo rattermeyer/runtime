@@ -60,6 +60,7 @@
         VIRTUAL_HOST: keycloak.service.consul
         PROXY_ADDRESS_FORWARDING: "true"
       recreate: "{{keycloak_recreate}}"
+      restart_policy: always
     become: True
 
   - name: create path
