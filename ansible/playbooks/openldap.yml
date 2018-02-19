@@ -1,22 +1,33 @@
 ---
 - hosts: openldap-servers
   become: True
+
+  vars:
+    server_uri: "ldapi:///"
+
   pre_tasks:
   - name: install dependency
     apt:
       name: python-jmespath
     become: True
 
-  - name: enable ldap
-    lineinfile:
-      path: /etc/default/slapd
-      regexp: "^SLAPD_SERVICES"
-      line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
-  
-  - name: restart slapd
-    service:
-      name: slapd
-      state: restarted
+  - name: check for default settings
+    stat:
+      path: "/etc/default/slapd"
+    register: st_slapd
+    
+  # - name: enable ldap (without ssl)
+  #   block:
+  #   - lineinfile:
+  #       path: /etc/default/slapd
+  #       regexp: "^SLAPD_SERVICES"
+  #       line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+    
+  #   - name: restart slapd
+  #     service:
+  #       name: slapd
+  #       state: restarted
+  #   when: st_slapd.stat.exists
   
   roles:
   - role: local.openldap
@@ -31,6 +42,7 @@
         suffix: dc=opendp,dc=org
         indexes:
           - [ "uid,uidNumber,gidNumber,memberUID", "pres,eq" ]
+          
   post_tasks:
   - name: Make sure we have a parent entry for users
     ldap_entry:
@@ -39,7 +51,7 @@
       attributes: "{{ item.attributes }}"
       bind_dn: cn=admin,dc=opendp,dc=org
       bind_pw: secret
-      server_uri: ldap://192.168.56.22/
+      server_uri: "{{server_uri}}"
     with_items:
     - { dn: "dc=opendp,dc=org",
         objectclass: ["dcObject", "organization"],
