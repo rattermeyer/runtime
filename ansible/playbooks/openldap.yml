@@ -15,20 +15,7 @@
     stat:
       path: "/etc/default/slapd"
     register: st_slapd
-    
-  # - name: enable ldap (without ssl)
-  #   block:
-  #   - lineinfile:
-  #       path: /etc/default/slapd
-  #       regexp: "^SLAPD_SERVICES"
-  #       line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
-    
-  #   - name: restart slapd
-  #     service:
-  #       name: slapd
-  #       state: restarted
-  #   when: st_slapd.stat.exists
-  
+
   roles:
   - role: local.openldap
     openldap_schemas:
