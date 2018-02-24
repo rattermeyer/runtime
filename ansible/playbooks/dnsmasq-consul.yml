@@ -16,8 +16,15 @@
       src: "10-consul.j2"
       dest: "/etc/dnsmasq.d/10-consul"
     notify: restart dnsmasq
+  - name: "ignore resolvconf"
+    lineinfile:
+      path: /etc/default/dnsmasq
+      regexp: "IGNORE_RESOLVCONF"
+      line: "IGNORE_RESOLVCONF=yes"
+    become: True
+    notify: restart dnsmasq
   handlers:
-  - name: "restart dnsmasq"
+  - name: restart dnsmasq
     service:
       name: dnsmasq
       state: restarted
