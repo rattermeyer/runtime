@@ -13,6 +13,7 @@
     keycloak_tls_src_dir: /home/vagrant/pki
     keycloak_tls_truststore: truststore.jks
     keycloak_recreate: False
+    keycloak_realm: opendp-realm.json
   tasks:
   - name: ensure docker-py is installed
     pip:
@@ -40,21 +41,29 @@
       dest: /etc/keycloak/truststore.jks
     become: True
 
+  - name: copy realm
+    copy:
+      src: opendp-realm.json
+      dest: /etc/keycloak/opendp-realm.json
+    become: True
+
   - name: keycloak container
     docker_container:
       name: keycloak
       image: rattermeyer/keycloak-truststore:latest
       # As soon as we have a configuration available, we will import it here
-      #      command: ["-b", "0.0.0.0", "-Dkeycloak.import=/opt/jboss/keycloak/${KEYCLOAK_IMPORT_REALM}"]
+      command: ["-b", "0.0.0.0", "-Dkeycloak.import=/opt/jboss/keycloak/{{ keycloak_realm }}"]
       networks:
       - name: keycloak
       purge_networks: True
       volumes:
       - "/etc/keycloak/truststore.jks:/etc/keycloak/truststore.jks"
+      - "/etc/keycloak/opendp-realm.json:/opt/jboss/keycloak/opendp-realm.json"
       env:
         KEYCLOAK_USER: "{{keycloak_user}}"
         KEYCLOAK_PASSWORD: "{{keycloak_password}}"
         KEYCLOAK_LOGLEVEL: "{{keycloak_loglevel}}"
+        KEYCLOAK_IMPORT_REALM: "{{ keycloak_realm }}"
         TRUSTSTORE_DISABLED: false
         TRUSTSTORE: /etc/keycloak/truststore.jks 
         VIRTUAL_HOST: keycloak.service.consul
@@ -92,6 +101,8 @@
       - /var/run/docker.sock:/tmp/docker.sock:ro
       networks:
       - name: keycloak
+      recreate: "{{keycloak_recreate}}"
+      restart_policy: always
     become: True
 
   - name: register keycloak
