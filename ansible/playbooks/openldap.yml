@@ -31,9 +31,6 @@
           - [ "uid,uidNumber,gidNumber,memberUID", "pres,eq" ]
           
   post_tasks:
-  - debug:
-      msg: "{{'{SSHA}h6h0/xHfm6f341edbgYbZRlCo3wfPFTS' | b64encode }}"
-    when: post_tasks
   - name: Make sure we have a parent entry for users
     ldap_entry:
       dn: "{{ item.dn }}"
@@ -70,7 +67,7 @@
           cn: "alice springs",
           sn: "springs",
           mail: "alice.springs@opendp.local",
-          userPassword: '{SSHA}T/pM7A4XPiGuysTNmBCm1XSDqaYk2IkLYk+d2g' # alice
+          userPassword: '{SSHA}CEO5svZIGFMKGrAPsXnWwK418E3ZZWMcwFNZmg==' # alice
         }
       }
     - { 

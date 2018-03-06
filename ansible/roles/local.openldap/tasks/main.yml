@@ -113,15 +113,15 @@
   - { name: "olcModuleLoad", ldap_values: "{3}pw-sha2", state: present }
   tags: rtcconfig
 
-#- name: config global settings
-#  ldap_attr:
-#    dn: "cn=config"
-#    name: "{{item.name}}"
-#    values: "{{item.ldap_values}}"
-#    state: "{{ item.state }}"
-#  with_items:
-#    - { name: olcPasswordHash, ldap_values: ["{SSHA512}", "{SHA512}"], state: exact }
-#  tags: rtcconfig
+- name: config global settings
+  ldap_attr:
+    dn: "olcDatabase={-1}frontend,cn=config"
+    name: "{{item.name}}"
+    values: "{{item.ldap_values}}"
+    state: "{{ item.state }}"
+  with_items:
+    - { name: olcPasswordHash, ldap_values: ["{SSHA}"], state: exact }
+  tags: rtcconfig
 
 - name: modify config database
   ldap_attr:

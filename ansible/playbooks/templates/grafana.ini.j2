@@ -36,7 +36,7 @@
 ;http_port = 3000
 
 # The public facing domain name used to access grafana from a browser
-;domain = localhost
+domain = grafana.service.consul
 
 # Redirect to correct domain if host header does not match domain
 # Prevents DNS rebinding attacks
@@ -44,7 +44,7 @@
 
 # The full public facing url you use in browser, used for redirects and emails
 # If you use reverse proxy and sub path specify full url (with sub path)
-;root_url = http://localhost:3000
+;root_url = http://grafana.service.consul:3000
 
 # Log web requests
 ;router_logging = false
@@ -159,7 +159,7 @@
 #################################### Users ####################################
 [users]
 # disable user signup / registration
-;allow_sign_up = true
+allow_sign_up = true
 
 # Allow non admin users to create organizations
 ;allow_org_create = true
@@ -178,7 +178,7 @@
 
 [auth]
 # Set to true to disable (hide) the login form, useful if you use OAuth, defaults to false
-;disable_login_form = false
+disable_login_form = true
 
 #################################### Anonymous Auth ##########################
 [auth.anonymous]
@@ -218,15 +218,15 @@
 
 #################################### Generic OAuth ##########################
 [auth.generic_oauth]
-;enabled = false
-;name = OAuth
-;allow_sign_up = true
-;client_id = some_id
-;client_secret = some_secret
+enabled = true
+name = Keycloak
+allow_sign_up = false
+client_id = grafana
+client_secret = faf2c52e-9c36-4412-822a-372b127e5fd0
 ;scopes = user:email,read:org
-;auth_url = https://foo.bar/login/oauth/authorize
-;token_url = https://foo.bar/login/oauth/access_token
-;api_url = https://foo.bar/user
+auth_url = https://keycloak.service.consul/auth/realms/opendp/protocol/openid-connect/auth
+token_url = https://keycloak.service.consul/auth/realms/opendp/protocol/openid-connect/token
+api_url = https://keycloak.service.consul/auth/realms/opendp/protocol/openid-connect/userinfo
 ;team_ids =
 ;allowed_organizations =
 
@@ -279,7 +279,7 @@
 ;mode = console file
 
 # Either "trace", "debug", "info", "warn", "error", "critical", default is "info"
-;level = info
+level = debug
 
 # optional settings to set different levels for specific loggers. Ex filters = sqlstore:debug
 ;filters =
