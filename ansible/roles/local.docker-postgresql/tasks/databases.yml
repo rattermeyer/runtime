@@ -3,6 +3,7 @@
   docker_container:
     name: "{{ postgresql_service_name }}"
     state: started
+  become: True
 
 - name: PostgreSQL | Make sure the PostgreSQL databases are present
   postgresql_db:

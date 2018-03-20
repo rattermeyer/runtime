@@ -1,0 +1,2 @@
+postgres_password: "{{vault_postgres_password}}"
+postgresql_secondary_user_pwd: "{{vault_postgresql_secondary_user_pwd}}"

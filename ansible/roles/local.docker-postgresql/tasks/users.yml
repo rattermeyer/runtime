@@ -3,11 +3,11 @@
   postgresql_user:
     name: "{{item.name}}"
     password: "{{ item.pass | default(omit) }}"
-    encrypted: "{{ item.encrypted | default(omit) }}"
+    encrypted: "{{ item.encrypted | default(True) }}"
     port: "{{postgresql_port}}"
     state: present
     login_user: "{{postgresql_admin_user}}"
+    login_host: "{{item.host | default('127.0.0.1')}}"
   become: yes
-  become_user: "{{postgresql_admin_user}}"
   with_items: "{{postgresql_users}}"
   when: postgresql_users|length > 0

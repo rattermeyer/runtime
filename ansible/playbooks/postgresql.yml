@@ -8,6 +8,7 @@
     postgresql_user_privileges:
     - name: secondary                       # user name
       role_attr_flags: "REPLICATION,LOGIN"  # role attribute flags
+      host: "127.0.0.1"
     postgresql_pg_hba_custom:
     - comment: used for streaming replication
       type: host
@@ -25,4 +26,5 @@
     postgresql_user_privileges:
     - name: secondary                       # user name
       role_attr_flags: "REPLICATION,LOGIN"  # role attribute flags
+      host: "127.0.0.1"
     postgresql_hot_standby: True
