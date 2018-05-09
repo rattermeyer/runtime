@@ -7,4 +7,5 @@
     VAULT_CAPATH: /etc/vault/ssl
     VAULT_CACERT: "{{vault_tls_ca_crt}}"
   tasks:
-  - import_tasks: vault_unseal.yml
+  - name: perform unseal
+    import_tasks: vault_unseal.yml
