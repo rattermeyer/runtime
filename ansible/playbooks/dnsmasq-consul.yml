@@ -10,11 +10,26 @@
     - '8.8.8.8'
     - '8.8.4.4'
   tasks:
+  - name: ensure systemd-resolved is not started
+    block:
+      - name: do not start systemd-resolved on port 53
+        lineinfile:
+          path: /etc/systemd/resolved.conf
+          regexp: "{{item.regexp}}"
+          line: "{{item.line}}"
+        with_items:
+        - { regexp: '^DNS=', line: 'DNS=127.0.1.1'}
+        - { regexp: '^FallbackDNS=', line: 'DNS=127.0.1.1'}
+      - name: restart systemd-resolved
+        service:
+          name: systemd-resolved
+          state: restarted
+
   - name: "ensure dnsmasq is installed"
     package:
       name: "dnsmasq"
       state: present
-  
+
   - name: "copy config for consul dns resolution"
     template:
       src: "10-consul.j2"
@@ -36,8 +51,15 @@
       line: "{{ item.line }}"
     with_items:
     - { regexp: '^resolv-file=', insertafter: "#resolv-file", line: 'resolv-file=/etc/resolv.dnsmasq.conf'}
+    - { regexp: '^bind-interfaces', insertafter: "#bind-interfaces", line: 'bind-interfaces'}
+    - { regexp: '^listen-address', insertafter: "#listen-address", line: 'listen-address=127.0.1.1'}
     notify: restart dnsmasq
-    
+
+  - name: start dnsmasq
+    service:
+      name: dnsmasq
+      state: started
+
   handlers:
   - name: restart dnsmasq
     service:
