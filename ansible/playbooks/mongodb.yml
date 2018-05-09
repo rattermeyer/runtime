@@ -14,6 +14,11 @@
   roles:
     - role: greendayonfire.mongodb
       become: True
+      mongodb_version: '3.4'
+      mongodb_repository:
+        "3.2": "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse"
+        "3.4": "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse"
+        "3.6": "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse"
       mongodb_security_authorization: "enabled"
       mongodb_login_host: 192.168.56.23
       mongodb_net_bindip: 0.0.0.0

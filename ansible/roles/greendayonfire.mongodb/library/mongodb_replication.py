@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# (c) 2015-2016, Sergei Antipov, 2GIS LLC
+# (c) 2015-2018, Sergei Antipov, 2GIS LLC
 #
 # This file is part of Ansible
 #
@@ -23,7 +23,7 @@ module: mongodb_replication
 short_description: Adds or removes a node from a MongoDB Replica Set.
 description:
     - Adds or removes host from a MongoDB replica set. Initialize replica set if it needed.
-version_added: "2.2"
+version_added: "2.4"
 options:
     login_user:
         description:
@@ -45,6 +45,11 @@ options:
             - The port to connect to
         required: false
         default: 27017
+    login_database:
+        description:
+            - The database where login credentials are stored
+        required: false
+        default: admin
     replica_set:
         description:
             - Replica set to connect to (automatically connects to primary for writes)
@@ -69,6 +74,12 @@ options:
         description:
             - Whether to use an SSL connection when connecting to the database
         default: False
+    ssl_cert_reqs:
+        description:
+            - Specifies whether a certificate is required from the other side of the connection, and whether it will be validated if provided.
+        required: false
+        default: "CERT_REQUIRED"
+        choices: ["CERT_REQUIRED", "CERT_OPTIONAL", "CERT_NONE"]
     build_indexes:
         description:
             - Determines whether the mongod builds indexes on this member.
@@ -105,7 +116,7 @@ options:
         default: present
         choices: [ "present", "absent" ]
 notes:
-    - Requires the pymongo Python package on the remote host, version 3.0+. It
+    - Requires the pymongo Python package on the remote host, version 3.2+. It
       can be installed using pip or the OS package manager. @see http://api.mongodb.org/python/current/installation.html
 requirements: [ "pymongo" ]
 author: "Sergei Antipov @UnderGreen"
@@ -146,7 +157,9 @@ host_type:
   sample: "replica"
 '''
 import ConfigParser
+import ssl as ssl_lib
 import time
+from datetime import datetime as dtdatetime
 from distutils.version import LooseVersion
 try:
     from pymongo.errors import ConnectionFailure
@@ -156,7 +169,6 @@ try:
     from pymongo.errors import ServerSelectionTimeoutError
     from pymongo import version as PyMongoVersion
     from pymongo import MongoClient
-    from pymongo import MongoReplicaSetClient
 except ImportError:
     pymongo_found = False
 else:
@@ -166,11 +178,14 @@ else:
 # MongoDB module specific support methods.
 #
 def check_compatibility(module, client):
-    if LooseVersion(PyMongoVersion) <= LooseVersion('3.0'):
-        module.fail_json(msg='Note: you must use pymongo 3.0+')
     srv_info = client.server_info()
-    if LooseVersion(srv_info['version']) >= LooseVersion('3.2') and LooseVersion(PyMongoVersion) <= LooseVersion('3.2'):
-        module.fail_json(msg=' (Note: you must use pymongo 3.2+ with MongoDB >= 3.2)')
+    if LooseVersion(PyMongoVersion) <= LooseVersion('3.2'):
+        module.fail_json(msg='Note: you must use pymongo 3.2+')
+    if LooseVersion(srv_info['version']) >= LooseVersion('3.4') and LooseVersion(PyMongoVersion) <= LooseVersion('3.4'):
+        module.fail_json(msg='Note: you must use pymongo 3.4+ with MongoDB 3.4.x')
+    if LooseVersion(srv_info['version']) >= LooseVersion('3.6') and LooseVersion(PyMongoVersion) <= LooseVersion('3.6'):
+        module.fail_json(msg='Note: you must use pymongo 3.6+ with MongoDB 3.6.x')
+
 
 def check_members(state, module, client, host_name, host_port, host_type):
     admin_db = client['admin']
@@ -200,6 +215,7 @@ def check_members(state, module, client, host_name, host_port, host_type):
                     module.exit_json(changed=False, host_name=host_name, host_port=host_port, host_type=host_type)
 
 def add_host(module, client, host_name, host_port, host_type, timeout=180, **kwargs):
+    start_time = dtdatetime.now()
     while True:
         try:
             admin_db = client['admin']
@@ -236,13 +252,13 @@ def add_host(module, client, host_name, host_port, host_type, timeout=180, **kwa
             cfg['members'].append(new_host)
             admin_db.command('replSetReconfig', cfg)
             return
-        except (OperationFailure, AutoReconnect), e:
-            timeout = timeout - 5
-            if timeout <= 0:
+        except (OperationFailure, AutoReconnect) as e:
+            if (dtdatetime.now() - start_time).seconds > timeout:
                 module.fail_json(msg='reached timeout while waiting for rs.reconfig(): %s' % str(e))
             time.sleep(5)
 
 def remove_host(module, client, host_name, timeout=180):
+    start_time = dtdatetime.now()
     while True:
         try:
             admin_db = client['admin']
@@ -265,9 +281,8 @@ def remove_host(module, client, host_name, timeout=180):
                 else:
                     fail_msg = "couldn't find member with hostname: {0} in replica set members list".format(host_name)
                     module.fail_json(msg=fail_msg)
-        except (OperationFailure, AutoReconnect), e:
-            timeout = timeout - 5
-            if timeout <= 0:
+        except (OperationFailure, AutoReconnect) as e:
+            if (dtdatetime.now() - start_time).seconds > timeout:
                 module.fail_json(msg='reached timeout while waiting for rs.reconfig(): %s' % str(e))
             time.sleep(5)
 
@@ -286,14 +301,23 @@ def load_mongocnf():
 
     return creds
 
-def wait_for_ok_and_master(module, client, timeout = 60):
+def wait_for_ok_and_master(module, connection_params, timeout = 180):
+    start_time = dtdatetime.now()
     while True:
-        status = client.admin.command('replSetGetStatus', check=False)
-        if status['ok'] == 1 and status['myState'] == 1:
-            return
+        try:
+            client = MongoClient(**connection_params)
+            authenticate(client, connection_params["username"], connection_params["password"])
 
-        timeout = timeout - 1
-        if timeout == 0:
+            status = client.admin.command('replSetGetStatus', check=False)
+            if status['ok'] == 1 and status['myState'] == 1:
+                return
+
+        except ServerSelectionTimeoutError:
+            pass
+
+        client.close()
+
+        if (dtdatetime.now() - start_time).seconds > timeout:
             module.fail_json(msg='reached timeout while waiting for rs.status() to become ok=1')
 
         time.sleep(1)
@@ -318,14 +342,16 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             login_user=dict(default=None),
-            login_password=dict(default=None),
+            login_password=dict(default=None, no_log=True),
             login_host=dict(default='localhost'),
             login_port=dict(default='27017'),
+            login_database=dict(default="admin"),
             replica_set=dict(default=None),
             host_name=dict(default='localhost'),
             host_port=dict(default='27017'),
             host_type=dict(default='replica', choices=['replica','arbiter']),
-            ssl=dict(default='false'),
+            ssl=dict(default=False, type='bool'),
+            ssl_cert_reqs=dict(default='CERT_REQUIRED', choices=['CERT_NONE', 'CERT_OPTIONAL', 'CERT_REQUIRED']),
             build_indexes = dict(type='bool', default='yes'),
             hidden = dict(type='bool', default='no'),
             priority = dict(default='1.0'),
@@ -336,12 +362,13 @@ def main():
     )
 
     if not pymongo_found:
-        module.fail_json(msg='the python pymongo (>= 2.4) module is required')
+        module.fail_json(msg='the python pymongo (>= 3.2) module is required')
 
     login_user = module.params['login_user']
     login_password = module.params['login_password']
     login_host = module.params['login_host']
     login_port = module.params['login_port']
+    login_database = module.params['login_database']
     replica_set = module.params['replica_set']
     host_name = module.params['host_name']
     host_port = module.params['host_port']
@@ -356,29 +383,58 @@ def main():
         if replica_set is None:
             module.fail_json(msg='replica_set parameter is required')
         else:
-            client = MongoClient(login_host, int(login_port), replicaSet=replica_set,
-                                 ssl=ssl, serverSelectionTimeoutMS=5000)
+            connection_params = {
+                "host": login_host,
+                "port": int(login_port),
+                "username": login_user,
+                "password": login_password,
+                "authsource": login_database,
+                "serverselectiontimeoutms": 5000,
+                "replicaset": replica_set,
+            }
 
+        if ssl:
+            connection_params["ssl"] = ssl
+            connection_params["ssl_cert_reqs"] = getattr(ssl_lib, module.params['ssl_cert_reqs'])
+
+        client = MongoClient(**connection_params)
         authenticate(client, login_user, login_password)
         client['admin'].command('replSetGetStatus')
 
     except ServerSelectionTimeoutError:
         try:
-            client = MongoClient(login_host, int(login_port), ssl=ssl)
+            connection_params = {
+                "host": login_host,
+                "port": int(login_port),
+                "username": login_user,
+                "password": login_password,
+                "authsource": login_database,
+                "serverselectiontimeoutms": 10000,
+            }
+
+            if ssl:
+                connection_params["ssl"] = ssl
+                connection_params["ssl_cert_reqs"] = getattr(ssl_lib, module.params['ssl_cert_reqs'])
+
+            client = MongoClient(**connection_params)
             authenticate(client, login_user, login_password)
             if state == 'present':
                 new_host = { '_id': 0, 'host': "{0}:{1}".format(host_name, host_port) }
                 if priority != 1.0: new_host['priority'] = priority
                 config = { '_id': "{0}".format(replica_set), 'members': [new_host] }
                 client['admin'].command('replSetInitiate', config)
-                wait_for_ok_and_master(module, client)
+                client.close()
+                wait_for_ok_and_master(module, connection_params)
                 replica_set_created = True
                 module.exit_json(changed=True, host_name=host_name, host_port=host_port, host_type=host_type)
-        except OperationFailure, e:
+        except OperationFailure as e:
             module.fail_json(msg='Unable to initiate replica set: %s' % str(e))
-    except ConnectionFailure, e:
+    except ConnectionFailure as e:
         module.fail_json(msg='unable to connect to database: %s' % str(e))
 
+    # reconnect again
+    client = MongoClient(**connection_params)
+    authenticate(client, login_user, login_password)
     check_compatibility(module, client)
     check_members(state, module, client, host_name, host_port, host_type)
 
@@ -394,13 +450,13 @@ def main():
                         priority        = float(module.params['priority']),
                         slave_delay     = module.params['slave_delay'],
                         votes           = module.params['votes'])
-        except OperationFailure, e:
+        except OperationFailure as e:
             module.fail_json(msg='Unable to add new member to replica set: %s' % str(e))
 
     elif state == 'absent':
         try:
             remove_host(module, client, host_name)
-        except OperationFailure, e:
+        except OperationFailure as e:
             module.fail_json(msg='Unable to remove member of replica set: %s' % str(e))
 
     module.exit_json(changed=True, host_name=host_name, host_port=host_port, host_type=host_type)
