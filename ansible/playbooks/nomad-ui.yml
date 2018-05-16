@@ -1,9 +1,10 @@
 - hosts: server1
   become: True
   tasks:
+  # TODO see angstwad. Need to decide if we check pre-requisites here, then we need some logic
   - name: Install docker-py
     pip:
-      name: docker-py
+      name: docker
   - name: start hashi-ui container
   # This container is started with host network mode
   # it is therefore directly accessible on the host interface / port

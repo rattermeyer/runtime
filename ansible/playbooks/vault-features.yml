@@ -1,0 +1,37 @@
+---
+- name: ensure pip is installed
+  package:
+      name: python-pip
+- name: install hvac
+  pip:
+      name: hvac
+
+
+- name: get vault status
+  hashivault_status:
+  register: 'vault_status'
+  tags: vault_status
+  run_once: True
+  delegate_to: 127.0.0.1
+
+- debug:
+    msg: "{{vault_status}}"
+  tags: vault_status
+
+- block:
+  - name: "get client token"
+    set_fact:
+      tmp_data: "{{lookup('file', '/etc/vault/keys.json')| from_json}}"
+  - name: "extract client token"
+    set_fact:
+      client_token: "{{tmp_data.root_token}}"
+  - hashivault_secret_list:
+      ca_cert: "/etc/vault/ssl/ca.pem"
+      token: "{{client_token}}"
+    register: 'hashivault_secret_list'
+    tags: secret_list
+  - hashivault_secret_enable:
+      name: "ephemeral"
+      backend: "generic"
+      token: "{{client_token}}"
+  when: vault_status.status.sealed == False

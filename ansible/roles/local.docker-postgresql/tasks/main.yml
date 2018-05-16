@@ -1,15 +1,20 @@
 ---
-- import_tasks: configure.yml
+- name: configure postgres
+  import_tasks: configure.yml
   tags: [postgresql, postgresql-configure]
 
-- import_tasks: install.yml
+- name: install postgres
+  import_tasks: install.yml
   tags: [postgresql, postgresql-install]
 
 # create users, databases
 # and assign users privileges on databases
-- include_tasks: users.yml
+- name: create users
+  include_tasks: users.yml
   tags: [postgresql, postgresql-users]
-- include_tasks: databases.yml
+- name: create databases
+  include_tasks: databases.yml
   tags: [postgresql, postgresql-databases]
-- include_tasks: users_privileges.yml
+- name: grant user privileges
+  include_tasks: users_privileges.yml
   tags: [postgresql, postgresql-user_privileges]

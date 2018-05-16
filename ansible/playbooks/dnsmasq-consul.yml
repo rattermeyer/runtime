@@ -19,7 +19,7 @@
           line: "{{item.line}}"
         with_items:
         - { regexp: '^DNS=', line: 'DNS=127.0.1.1'}
-        - { regexp: '^FallbackDNS=', line: 'DNS=127.0.1.1'}
+        - { regexp: '^FallbackDNS=', line: 'FallbackDNS=127.0.1.1'}
       - name: restart systemd-resolved
         service:
           name: systemd-resolved
@@ -52,8 +52,15 @@
     with_items:
     - { regexp: '^resolv-file=', insertafter: "#resolv-file", line: 'resolv-file=/etc/resolv.dnsmasq.conf'}
     - { regexp: '^bind-interfaces', insertafter: "#bind-interfaces", line: 'bind-interfaces'}
-    - { regexp: '^listen-address', insertafter: "#listen-address", line: 'listen-address=127.0.1.1'}
     notify: restart dnsmasq
+
+  - name: modify dnsmasq.conf (2)
+    blockinfile:
+      insertafter: "#listen-address"
+      block: |
+        listen-address=127.0.1.1
+        listen-address={{ansible_host}}
+      path: /etc/dnsmasq.conf
 
   - name: start dnsmasq
     service:

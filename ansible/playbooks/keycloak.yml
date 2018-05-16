@@ -7,6 +7,30 @@
 # the nginx proxy and keycloak are located on a "private" internal network and
 # can therefore see each other
 #
+- hosts: postgresql-master
+  tasks:
+  - name: adding psycopg2
+    pip:
+      name: psycopg2
+    become: True
+  - name: create keycloak db
+    postgresql_db:
+      name: keycloak
+      encoding: UTF-8
+      login_user: "postgres"
+      login_host: "127.0.0.1"
+    become: True
+  - name: create keycloak user
+    postgresql_user:
+      name: keycloak
+      password: keycloak
+      encrypted: True
+      db: keycloak
+      priv: ALL
+      login_user: "postgres"
+      login_host: "127.0.0.1"
+    become: True
+  tags: postgres
 
 - hosts: keycloak-servers
   vars:
@@ -15,11 +39,12 @@
     keycloak_recreate: False
     keycloak_realm: opendp-realm.json
   tasks:
+  # TODO see angstwad. Need to decide if we check pre-requisites here, then we need some logic
   - name: ensure docker-py is installed
     pip:
       name: "{{item}}"
     with_items:
-    - docker-py
+    - docker
     - python-consul
     become: True
 
@@ -27,7 +52,7 @@
     docker_network:
       name: keycloak
     become: True
-  
+
   - name: create directory
     file:
       path: /etc/keycloak
@@ -59,13 +84,17 @@
       volumes:
       - "/etc/keycloak/truststore.jks:/etc/keycloak/truststore.jks"
       - "/etc/keycloak/opendp-realm.json:/opt/jboss/keycloak/opendp-realm.json"
+      dns_servers:
+      - 192.168.56.21
+      - 192.168.56.22
+      - 192.168.56.23
       env:
         KEYCLOAK_USER: "{{keycloak_user}}"
         KEYCLOAK_PASSWORD: "{{keycloak_password}}"
         KEYCLOAK_LOGLEVEL: "{{keycloak_loglevel}}"
         KEYCLOAK_IMPORT_REALM: "{{ keycloak_realm }}"
         TRUSTSTORE_DISABLED: false
-        TRUSTSTORE: /etc/keycloak/truststore.jks 
+        TRUSTSTORE: /etc/keycloak/truststore.jks
         VIRTUAL_HOST: keycloak.service.consul
         PROXY_ADDRESS_FORWARDING: "true"
       recreate: "{{keycloak_recreate}}"

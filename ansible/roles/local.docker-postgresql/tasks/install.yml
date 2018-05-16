@@ -1,16 +1,29 @@
-- name: PostgreSQL | ensure docker is installed
-  package:
-    name: docker.io
-  become: true
-
 - name: PostgreSQL | ensure docker is running
   service:
     name: docker
     state: started
+  become: True
 
+# TODO see angstwad. Need to decide if we check pre-requisites here, then we need some logic
 - name: PostgreSQL | ensure docker-py
   pip:
-    name: docker-py
+    name: "{{ item }}"
+  with_items:
+  - docker
+  - psycopg2  # needed for postgres ansible modules
+  become: True
+
+- name: Cretae Postgers group
+  group:
+    name: postgres
+  become: True
+
+- name: Create Postgres user
+  user:
+    name: "postgres"
+    shell: /usr/sbin/nologin
+    state: present
+    group: postgres
   become: True
 
 - name: PostgreSQL | ensure that recovery.conf is not present
@@ -18,7 +31,7 @@
     path: /var/lib/postgresql/data/recovery.conf
     state: absent
   become: True
-  
+
 - name: PostgreSQL | start docker containers
   docker_container:
     name: "{{ postgresql_service_name }}"
@@ -31,6 +44,8 @@
     - "{{ postgresql_conf_directory }}:/etc/postgresql"
     - "{{ postgresql_conf_directory }}/conf.d:/etc/postgresql/conf.d"
     - "{{ postgresql_data_directory }}:{{ postgresql_data_directory }}"
+    - "/etc/passwd:/etc/passwd:ro"
+    user: "postgres"
     env:
       PGDATA: "{{postgresql_data_directory}}"
   become: True

@@ -54,11 +54,40 @@
     - { dn: "cn=config", name: olcTLSCertificateFile, ldap_values: "/etc/ldap/ssl/ldap.crt", state: exact }
     - { dn: "cn=config", name: olcTLSCertificateKeyFile, ldap_values: "/etc/ldap/ssl/ldap.key", state: exact }
 
+- name: "ensure pip is installed"
+  package:
+    name: "{{ item }}"
+  with_items:
+  - python-pip
+  become: True
+  tags: register_openldap
+
+- name: "correct urllib3 version"
+  pip:
+    name: urllib3
+    version: 1.21
+  become: True
+  tags: register_openldap
+
+- name: "additional packages"
+  pip:
+    name: "{{ item }}"
+  with_items:
+  - pyhcl
+  - python-consul
+  - requests[security]
+  tags: register_openldap
+  become: True
+
 - name: register openldap
   consul:
     service_name: ldap
     service_port: 639
-  become: True
+    scheme: "https"
+    port: 8543
+    token: "CH4NG3M3CH4NG3M3CH4NG3M3CH4NG3M3"
+    validate_certs: False
+  tags: register_openldap
 
 - name: force ldaps
   lineinfile:

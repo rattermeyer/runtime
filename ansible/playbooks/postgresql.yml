@@ -1,30 +1,58 @@
----
 - hosts: postgresql-master
-  roles:
-  - role: local.docker-postgresql
-    postgresql_users:
-    - name: secondary
-      pass: "{{postgresql_secondary_user_pwd}}"
-    postgresql_user_privileges:
-    - name: secondary                       # user name
-      role_attr_flags: "REPLICATION,LOGIN"  # role attribute flags
-      host: "127.0.0.1"
-    postgresql_pg_hba_custom:
-    - comment: used for streaming replication
-      type: host
-      database: replication
-      user: secondary
-      address: 192.168.56.0/24
-      method: md5
+  vars:
+    postgresql_version: 10
+    postgresql_cluster_name: odp
+    postgresql_conf_directory: "/etc/postgresql/{{postgresql_version}}/{{postgresql_cluster_name}}"
+    postgresql_admin_user: postgres
+    postgresql_service_user: "{{ postgresql_admin_user }}"
+    postgresql_service_userid: 1046
+    postgresql_service_group: "{{ postgresql_admin_user }}"
+    postgresql_service_groupid: "{{ postgresql_service_userid }}"
+    postgresql_varlib_directory_name: "postgresql"
+    postgresql_data_directory: "/var/lib/{{ postgresql_varlib_directory_name }}/{{postgresql_version}}/{{postgresql_cluster_name}}"
 
-- hosts: postgresql-secondaries
-  roles:
-  - role: local.docker-postgresql
-    postgresql_users:
-    - name: secondary
-      pass: "{{postgresql_secondary_user_pwd}}"
-    postgresql_user_privileges:
-    - name: secondary                       # user name
-      role_attr_flags: "REPLICATION,LOGIN"  # role attribute flags
-      host: "127.0.0.1"
-    postgresql_hot_standby: True
+  tasks:
+  - name: Create Postgres group
+    group:
+      name: "{{ postgresql_service_group }}"
+      gid: "{{ postgresql_service_groupid }}"
+    become: True
+
+  - name: Create Postgres user
+    user:
+      name: "{{ postgresql_service_user }}"
+      uid: "{{ postgresql_service_userid }}"
+      shell: /usr/sbin/nologin
+      state: present
+      group: "{{ postgresql_service_group }}"
+    become: True
+
+  - name: Create directories
+    file:
+      path: "{{ postgresql_data_directory }}"
+      owner: "{{ postgresql_service_user }}"
+      group: "{{ postgresql_service_group }}"
+      state: directory
+    become: True
+
+  - name: PostgreSQL | start docker container
+    docker_container:
+      name: "postgres"
+      image: "postgres:{{postgresql_version}}"
+      network_mode: host
+      restart_policy: on-failure
+      restart_retries: 5
+      volumes:
+      - "/etc/passwd:/etc/passwd:ro"
+      - "{{ postgresql_data_directory }}:/var/lib/postgresql/data"
+    become: True
+  
+  - name: enable postgres secrets backend
+    hashivault_secret_enable:
+      name: "database/1"
+      backend: "database"
+      url: https://192.168.56.21:8200
+      ca_cert: "/etc/vault/ssl/ca.pem"
+      token: "70e43a1d-227d-3932-219a-e0f0260910ac"
+    tags:
+    - vault

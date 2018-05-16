@@ -99,7 +99,21 @@
 
 - name: wait for port
   wait_for:
-    port: "{{ openldap_slapd_port }}"
+    port: "{{ item }}"
+    timeout: 30
+  with_items: "{{openldap_slapd_ports}}"
+  register: result_port
+  ignore_errors: True
+
+- debug:
+    msg: "{{ result_port.results }}"
+
+- name: find active port
+  set_fact:
+    active_port: "{{ result_port.results | selectattr('failed', 'equalto', False) | map(attribute='item') | list | first }}"
+
+- debug:
+    msg: "{{ active_port }}"
 
 - name: add memberof overlay
   ldap_attr:

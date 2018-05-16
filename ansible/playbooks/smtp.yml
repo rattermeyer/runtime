@@ -1,10 +1,11 @@
 - hosts: smtp-servers
   tasks:
+  # TODO see angstwad. Need to decide if we check pre-requisites here, then we need some logic
   - name: ensure docker-py is installed
     pip:
       name: "{{item}}"
     with_items:
-    - docker-py
+    - docker
     - python-consul
     become: True
 

@@ -8,6 +8,7 @@
     become: True
   roles:
     - role: angstwad.docker_ubuntu
+      docker_apt_channel: edge # only until we have stable version available for ubuntu 18.04
       daemon_json:
         log-level: debug
         dns: ["{{ansible_host}}","8.8.8.8", "8.8.4.4"]
@@ -24,10 +25,4 @@
     service:
       name: dnsmasq
       state: restarted
-    become: True
-# normally angstward.docker should install the correct docker-py / docker version
-# but somehow, we require docker-py as well (although it should not be required ...)
-  - name: ensure docker-py is installed
-    pip:
-      name: docker-py
     become: True

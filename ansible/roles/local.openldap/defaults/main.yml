@@ -20,7 +20,9 @@ openldap_slapd_service_name: slapd
 openldap_slapd_exec: /usr/sbin/slapd
 openldap_slapd_pidfile: /var/run/slapd/slapd.pid
 openldap_slapd_argsfile: /var/run/slapd/slapd.args
-openldap_slapd_port: 636
+openldap_slapd_ports:
+- 389
+- 636
 
 #openldap_slave_rid: 0
 openldap_schmas:

@@ -10,9 +10,10 @@
     template:
       src: prometheus.yml.j2
       dest: /etc/prometheus/prometheus.yml
+  # TODO see angstwad. Need to decide if we check pre-requisites here, then we need some logic
   - name: "ensure python docker-py is installed"
     pip:
-      name: docker-py
+      name: docker
   - name: "start container"
     docker_container:
       name: prometheus

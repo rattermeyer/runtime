@@ -2,7 +2,7 @@
   tasks:
   - name: "ensure docker-py is installed"
     pip:
-      name: docker-py
+      name: docker
     become: True
 
   - name: "start cadvisor container"

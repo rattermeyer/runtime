@@ -18,11 +18,11 @@ Vagrant.configure(2) do |config|
   # VirtualBox Configuration
 
   machines = {
-               :server1     => {:ip => '192.168.56.21', :box => 'geerlingguy/ubuntu1604', :mem => '4096', :cpu => 1 },
-               :server2     => {:ip => '192.168.56.22', :box => 'geerlingguy/ubuntu1604', :mem => '4096', :cpu => 1 },
-               :server3     => {:ip => '192.168.56.23', :box => 'geerlingguy/ubuntu1604', :mem => '4096', :cpu => 1 },
-               :worker1     => {:ip => '192.168.56.24', :box => 'geerlingguy/ubuntu1604', :mem => '2048', :cpu => 1 },
-               :worker2     => {:ip => '192.168.56.25', :box => 'geerlingguy/ubuntu1604', :mem => '2048', :cpu => 1 },
+               :server1     => {:ip => '192.168.56.21', :box => 'geerlingguy/ubuntu1804', :mem => '4096', :cpu => 2 },
+               :server2     => {:ip => '192.168.56.22', :box => 'geerlingguy/ubuntu1804', :mem => '4096', :cpu => 2 },
+               :server3     => {:ip => '192.168.56.23', :box => 'geerlingguy/ubuntu1804', :mem => '4096', :cpu => 2 },
+               :worker1     => {:ip => '192.168.56.24', :box => 'geerlingguy/ubuntu1804', :mem => '2048', :cpu => 1 },
+               :worker2     => {:ip => '192.168.56.25', :box => 'geerlingguy/ubuntu1804', :mem => '2048', :cpu => 1 },
              }
 
   machines.each do |machine_name, machine_details|
@@ -47,7 +47,7 @@ Vagrant.configure(2) do |config|
   end # machines
 
   config.vm.define "controller", autostart: true do |vm_config|
-    vm_config.vm.box = "geerlingguy/ubuntu1604"
+    vm_config.vm.box = "geerlingguy/ubuntu1804"
     vm_config.vm.box_check_update = false
     vm_config.vm.hostname = "controller"
     vm_config.vm.synced_folder ".", "/vagrant"

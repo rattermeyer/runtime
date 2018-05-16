@@ -143,3 +143,5 @@
       content: "{{vault_nomad_token.token | to_json}}"
       dest: "/etc/vault/nomad_token.json"
     when: vault_nomad_token is changed
+
+  - include_tasks: vault-features.yml

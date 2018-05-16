@@ -45,3 +45,7 @@ That should do the magic and provision a nomad cluster consisting of
 * prometheus / grafana
 * elasticsearch, mongodb replica set and graylog (TODO: not finished yet)
 * traefik
+
+## Known Issues
+
+* Upgrades of consul / vault are not yet supported

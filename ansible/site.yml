@@ -28,12 +28,13 @@
 - import_playbook: playbooks/secretsmanagement.yml
 #
 - import_playbook: playbooks/openldap.yml
-- import_playbook: playbooks/smtp.yml
-- import_playbook: playbooks/keycloak.yml
 - import_playbook: playbooks/logmanagement.yml
 # now we can install docker
 # TODO configure docker to use graylog directly
 - import_playbook: playbooks/docker.yml
+- import_playbook: playbooks/smtp.yml
+- import_playbook: playbooks/postgresql.yml
+- import_playbook: playbooks/keycloak.yml
 
 - import_playbook: playbooks/registry.yml
 
