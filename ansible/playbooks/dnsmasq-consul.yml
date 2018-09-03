@@ -20,6 +20,7 @@
         with_items:
         - { regexp: '^DNS=', line: 'DNS=127.0.1.1'}
         - { regexp: '^FallbackDNS=', line: 'FallbackDNS=127.0.1.1'}
+        - { regexp: 'DNSStubListener=', line: 'DNSStubListener=no' }
       - name: restart systemd-resolved
         service:
           name: systemd-resolved
@@ -58,7 +59,7 @@
     blockinfile:
       insertafter: "#listen-address"
       block: |
-        listen-address=127.0.1.1
+        listen-address=127.0.0.53
         listen-address={{ansible_host}}
       path: /etc/dnsmasq.conf
 
