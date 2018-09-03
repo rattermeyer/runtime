@@ -43,7 +43,6 @@
     - "{{ postgresql_data_directory }}:/var/lib/postgresql/data"
     - "{{ postgresql_conf_directory }}:/etc/postgresql"
     - "{{ postgresql_conf_directory }}/conf.d:/etc/postgresql/conf.d"
-    - "{{ postgresql_data_directory }}:{{ postgresql_data_directory }}"
     - "/etc/passwd:/etc/passwd:ro"
     user: "postgres"
     env:
