@@ -16,6 +16,8 @@
       nomad_vault: True
       nomad_vault_ca_file: "/etc/nomad/ssl/ca.pem"
       nomad_vault_token: "{{nomad_token.auth.client_token}}"
+      nomad_version: "0.8.4"
+      nomad_sha256sum: "42fc455d09ea0085cc79d7be4fb2089a9ab7db3cc2e8047e8437855a81b090e9"
       become: True
 - hosts: nomad_nodes
   tasks:
