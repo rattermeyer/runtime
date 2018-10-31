@@ -33,6 +33,7 @@
     consul_tls_key: "consul.{{ ansible_hostname }}.localdomain-key.pem"
     consul_verify_incoming: False
     consul_http_bind_address: 127.0.0.1
+    consul_version: 1.3.0
 
 # install clients
 # clients can be updated / processed /restarted in parallel
@@ -53,7 +54,7 @@
     consul_tls_crt: "consul-{{ ansible_hostname }}.pem"
     consul_tls_key: "consul-{{ ansible_hostname }}-key.pem"
     consul_http_bind_address: 127.0.0.1
-    consul_version: 1.2.2
+    consul_version: 1.3.0
 
 
 - hosts: consulhosts
