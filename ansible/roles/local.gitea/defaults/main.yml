@@ -1,0 +1,613 @@
+# This file lists the default values used by Gitea
+# Copy required sections to your own app.ini (default is custom/conf/app.ini)
+# and modify as needed.
+
+# see https://docs.gitea.io/en-us/config-cheat-sheet/ for additional documentation.
+
+gitea_user: git
+# App name that shows in every page title
+APP_NAME: Gitea - Git with a cup of tea
+# Change it if you run locally
+RUN_USER: git
+# Either "dev", "prod" or "test", default is "dev"
+RUN_MODE: dev
+
+repository_ROOT:
+repository_SCRIPT_TYPE: bash
+# Default ANSI charset
+repository_ANSI_CHARSET:
+# Force every new repository to be private
+repository_FORCE_PRIVATE: 'false'
+# Default privacy setting when creating a new repository, allowed values: last, private, public. Default is last which means the last setting used.
+repository_DEFAULT_PRIVATE: last
+# Global limit of repositories per user, applied at creation time. -1 means no limit
+repository_MAX_CREATION_LIMIT: -1
+# Mirror sync queue length, increase if mirror syncing starts hanging
+repository_MIRROR_QUEUE_LENGTH: 1000
+# Patch test queue length, increase if pull request patch testing starts hanging
+repository_PULL_REQUEST_QUEUE_LENGTH: 1000
+# Preferred Licenses to place at the top of the List
+# The name here must match the filename in conf/license or custom/conf/license
+repository_PREFERRED_LICENSES: Apache License 2.0,MIT License
+# Disable the ability to interact with repositories using the HTTP protocol
+repository_DISABLE_HTTP_GIT: 'false'
+# Force ssh:// clone url instead of scp-style uri when default SSH port is used
+repository_USE_COMPAT_SSH_URI: 'false'
+
+# List of file extensions for which lines should be wrapped in the CodeMirror editor
+# Separate extensions with a comma. To line wrap files without an extension, just put a comma
+repository_editor_LINE_WRAP_EXTENSIONS: .txt,.md,.markdown,.mdown,.mkd,
+# Valid file modes that have a preview API associated with them, such as api/v1/markdown
+# Separate the values by commas. The preview tab in edit mode won't be displayed if the file extension doesn't match
+repository_editor_PREVIEWABLE_FILE_MODES: markdown
+
+# Path for local repository copy. Defaults to `tmp/local-repo`
+repository_LOCAL_COPY_PATH: tmp/local-repo
+# Path for local wiki copy. Defaults to `tmp/local-wiki`
+repository_LOCAL_WIKI_PATH: tmp/local-wiki
+
+# Whether repository file uploads are enabled. Defaults to `'true'`
+repository_upload_ENABLED: 'true'
+# Path for uploads. Defaults to `data/tmp/uploads` (tmp gets deleted on gitea restart)
+repository_upload_TEMP_PATH: data/tmp/uploads
+# One or more allowed types, e.g. image/jpeg|image/png. Nothing means any file type
+repository_upload_ALLOWED_TYPES:
+# Max size of each file in megabytes. Defaults to 3MB
+repository_upload_FILE_MAX_SIZE: 3
+# Max number of files per upload. Defaults to 5
+repository_upload_MAX_FILES: 5
+
+# List of prefixes used in Pull Request title to mark them as Work In Progress
+repository_pull_request_WORK_IN_PROGRESS_PREFIXES: WIP:,[WIP]
+
+# Number of repositories that are displayed on one explore page
+ui_EXPLORE_PAGING_NUM: 20
+# Number of issues that are displayed on one page
+ui_ISSUE_PAGING_NUM: 10
+# Number of maximum commits displayed in one activity feed
+ui_FEED_MAX_COMMIT_NUM: 5
+# Number of maximum commits displayed in commit graph.
+ui_GRAPH_MAX_COMMIT_NUM: 100
+# Number of line of codes shown for a code comment
+ui_CODE_COMMENT_LINES: 4
+# Value of `theme-color` meta tag, used by Android >= 5.0
+# An invalid color like "none" or "disable" will have the default style
+# More info: https://developers.google.com/web/updates/2014/11/Support-for-theme-color-in-Chrome-39-for-Android
+ui_THEME_COLOR_META_TAG: #6cc644
+# Max size of files to be displayed (default is 8MiB)
+ui_MAX_DISPLAY_FILE_SIZE: 8388608
+# Whether the email of the user should be shown in the Explore Users page
+ui_SHOW_USER_EMAIL: 'true'
+# Set the default theme for the Gitea install
+ui_DEFAULT_THEME: gitea
+
+# Number of users that are displayed on one page
+ui_admin_USER_PAGING_NUM: 50
+# Number of repos that are displayed on one page
+ui_admin_REPO_PAGING_NUM: 50
+# Number of notices that are displayed on one page
+ui_admin_NOTICE_PAGING_NUM: 25
+# Number of organizations that are displayed on one page
+ui_admin_ORG_PAGING_NUM: 50
+
+# Number of repos that are displayed on one page
+ui_user_REPO_PAGING_NUM: 15
+
+ui_meta_AUTHOR: Gitea - Git with a cup of tea
+ui_meta_DESCRIPTION: Gitea (Git with a cup of tea) is a painless self-hosted Git service written in Go
+ui_meta_KEYWORDS: go,git,self-hosted,gitea
+
+# Enable hard line break extension
+markdown_ENABLE_HARD_LINE_BREAK: 'false'
+# List of custom URL-Schemes that are allowed as links when rendering Markdown
+# for example git,magnet
+markdown_CUSTOM_URL_SCHEMES:
+# List of file extensions that should be rendered/edited as Markdown
+# Separate the extensions with a comma. To render files without any extension as markdown, just put a comma
+markdown_FILE_EXTENSIONS: .md,.markdown,.mdown,.mkd
+
+# The protocol the server listens on. One of 'http', 'https', 'unix' or 'fcgi'.
+server_PROTOCOL: http
+server_DOMAIN: localhost
+server_ROOT_URL: "%(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/"
+# The address to listen on. Either a IPv4/IPv6 address or the path to a unix socket.
+server_HTTP_ADDR: 0.0.0.0
+server_HTTP_PORT: 3100
+# If REDIRECT_OTHER_PORT is 'true', and PROTOCOL is set to https an http server
+# will be started on PORT_TO_REDIRECT and it will redirect plain, non-secure http requests to the main
+# ROOT_URL.  Defaults are 'false' for REDIRECT_OTHER_PORT and 80 for
+# PORT_TO_REDIRECT.
+server_REDIRECT_OTHER_PORT: 'false'
+server_PORT_TO_REDIRECT: 80
+# Permission for unix socket
+server_UNIX_SOCKET_PERMISSION: 666
+# Local (DMZ) URL for Gitea workers (such as SSH update) accessing web service.
+# In most cases you do not need to change the default value.
+# Alter it only if your SSH server node is not the same as HTTP node.
+# Do not set this variable if PROTOCOL is set to 'unix'.
+server_LOCAL_ROOT_URL: "%(PROTOCOL)s://%(HTTP_ADDR)s:%(HTTP_PORT)s/"
+# Disable SSH feature when not available
+server_DISABLE_SSH: 'false'
+# Whether to use the builtin SSH server or not.
+server_START_SSH_SERVER: 'false'
+# Username to use for the builtin SSH server. If blank, then it is the value of RUN_USER.
+server_BUILTIN_SSH_SERVER_USER:
+# Domain name to be exposed in clone URL
+server_SSH_DOMAIN: "%(DOMAIN)s"
+# THe network interface the builtin SSH server should listen on
+server_SSH_LISTEN_HOST:
+# Port number to be exposed in clone URL
+server_SSH_PORT: 22
+# The port number the builtin SSH server should listen on
+server_SSH_LISTEN_PORT: "%(SSH_PORT)s"
+# Root path of SSH directory, default is '~/.ssh', but you have to use '/home/git/.ssh'.
+server_SSH_ROOT_PATH:
+# For the built-in SSH server, choose the ciphers to support for SSH connections,
+# for system SSH this setting has no effect
+server_SSH_SERVER_CIPHERS: aes128-ctr, aes192-ctr, aes256-ctr, aes128-gcm@openssh.com, arcfour256, arcfour128
+# For the built-in SSH server, choose the key exchange algorithms to support for SSH connections,
+# for system SSH this setting has no effect
+server_SSH_SERVER_KEY_EXCHANGES: diffie-hellman-group1-sha1, diffie-hellman-group14-sha1, ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521, curve25519-sha256@libssh.org
+# For the built-in SSH server, choose the MACs to support for SSH connections,
+# for system SSH this setting has no effect
+server_SSH_SERVER_MACS: hmac-sha2-256-etm@openssh.com, hmac-sha2-256, hmac-sha1, hmac-sha1-96
+# Directory to create temporary files in when testing public keys using ssh-keygen,
+# default is the system temporary directory.
+server_SSH_KEY_TEST_PATH:
+# Path to ssh-keygen, default is 'ssh-keygen' which means the shell is responsible for finding out which one to call.
+server_SSH_KEYGEN_PATH: ssh-keygen
+# Enable SSH Authorized Key Backup when rewriting all keys, default is 'true'
+server_SSH_BACKUP_AUTHORIZED_KEYS: 'true'
+# Enable exposure of SSH clone URL to anonymous visitors, default is 'false'
+server_SSH_EXPOSE_ANONYMOUS: 'false'
+# Indicate whether to check minimum key size with corresponding type
+server_MINIMUM_KEY_SIZE_CHECK: 'false'
+# Disable CDN even in "prod" mode
+server_OFFLINE_MODE: 'false'
+server_DISABLE_ROUTER_LOG: 'false'
+# Generate steps:
+# $ ./gitea cert -ca='true' -duration=8760h0m0s -host=myhost.example.com
+#
+# Or from a .pfx file exported from the Windows certificate store (do
+# not forget to export the private key):
+# $ openssl pkcs12 -in cert.pfx -out cert.pem -nokeys
+# $ openssl pkcs12 -in cert.pfx -out key.pem -nocerts -nodes
+server_CERT_FILE: custom/https/cert.pem
+server_KEY_FILE: custom/https/key.pem
+# Root directory containing templates and static files.
+# default is the path where Gitea is executed
+server_STATIC_ROOT_PATH:
+# Default path for App data
+server_APP_DATA_PATH: data
+# Application level GZIP support
+server_ENABLE_GZIP: 'false'
+# Application profiling (memory and cpu)
+# For "web" command it listens on localhost:6060
+# For "serve" command it dumps to disk at PPROF_DATA_PATH as (cpuprofile|memprofile)_<username>_<temporary id>
+server_ENABLE_PPROF: 'false'
+# PPROF_DATA_PATH, use an absolute path when you start gitea as service
+server_PPROF_DATA_PATH: data/tmp/pprof
+# Landing page, can be "home", "explore", or "organizations"
+server_LANDING_PAGE: home
+# Enables git-lfs support. 'true' or 'false', default is 'false'.
+server_LFS_START_SERVER: 'false'
+# Where your lfs files reside, default is data/lfs.
+server_LFS_CONTENT_PATH: data/lfs
+# LFS authentication secret, change this yourself
+server_LFS_JWT_SECRET:
+# LFS authentication validity period (in time.Duration), pushes taking longer than this may fail.
+server_LFS_HTTP_AUTH_EXPIRY: 20m
+
+# Define allowed algorithms and their minimum key length (use -1 to disable a type)
+
+ssh_minimum_key_sizes_ED25519: 256
+ssh_minimum_key_sizes_ECDSA: 256
+ssh_minimum_key_sizes_RSA: 2048
+ssh_minimum_key_sizes_DSA: 1024
+
+# Either "mysql", "postgres", "mssql" or "sqlite3", it's your choice
+database_DB_TYPE: postgres
+database_HOST: postgres.service.consul:5432
+database_NAME: gitea
+database_USER: gitea
+# Use PASSWD: `your password` for quoting if you use special characters in the password.
+database_PASSWD: gitea
+# For Postgres, either "disable" (default), "require", or "verify-full"
+# For MySQL, either "'false'" (default), "'true'", or "skip-verify"
+database_SSL_MODE: disable
+# For "sqlite3" and "tidb", use an absolute path when you start gitea as service
+database_PATH: data/gitea.db
+# For "sqlite3" only. Query timeout
+database_SQLITE_TIMEOUT: 500
+# For iterate buffer, default is 50
+database_ITERATE_BUFFER_SIZE: 50
+# Show the database generated SQL
+database_LOG_SQL: 'true'
+
+indexer_ISSUE_INDEXER_PATH: indexers/issues.bleve
+# repo indexer by default disabled, since it uses a lot of disk space
+indexer_REPO_INDEXER_ENABLED: 'false'
+indexer_REPO_INDEXER_PATH: indexers/repos.bleve
+indexer_UPDATE_BUFFER_LEN: 20
+indexer_MAX_FILE_SIZE: 1048576
+
+# Disallow regular (non-admin) users from creating organizations.
+admin_DISABLE_REGULAR_ORG_CREATION: 'false'
+
+# Whether the installer is disabled
+security_INSTALL_LOCK: 'false'
+# !!CHANGE THIS TO KEEP YOUR USER DATA SAFE!!
+security_SECRET_KEY: '!#@FDEWREWR&*('
+# How long to remember that an user is logged in before requiring relogin (in days)
+security_LOGIN_REMEMBER_DAYS: 7
+security_COOKIE_USERNAME: gitea_awesome
+security_COOKIE_REMEMBER_NAME: gitea_incredible
+# Reverse proxy authentication header name of user name
+security_REVERSE_PROXY_AUTHENTICATION_USER: X-WEBAUTH-USER
+# The minimum password length for new Users
+security_MIN_PASSWORD_LENGTH: 6
+# 'true' when users are allowed to import local server paths
+security_IMPORT_LOCAL_PATHS: 'false'
+# Prevent all users (including admin) from creating custom git hooks
+security_DISABLE_GIT_HOOKS: 'false'
+
+#
+# OpenID is an open, standard and decentralized authentication protocol.
+# Your identity is the address of a webpage you provide, which describes
+# how to prove you are in control of that page.
+#
+# For more info: https://en.wikipedia.org/wiki/OpenID
+#
+# Current implementation supports OpenID-2.0
+#
+# Tested to work providers at the time of writing:
+#  - Any GNUSocial node (your.hostname.tld/username)
+#  - Any SimpleID provider (http://simpleid.koinic.net)
+#  - http://openid.org.cn/
+#  - openid.stackexchange.com
+#  - login.launchpad.net
+#  - <username>.livejournal.com
+#
+# Whether to allow signin in via OpenID
+openid_ENABLE_OPENID_SIGNIN: 'true'
+# Whether to allow registering via OpenID
+# Do not include to rely on rhw DISABLE_REGISTRATION setting
+#openid_ENABLE_OPENID_SIGNUP: 'true'
+# Allowed URI patterns (POSIX regexp).
+# Space separated.
+# Only these would be allowed if non-blank.
+# Example value: trusted.domain.org trusted.domain.net
+openid_WHITELISTED_URIS:
+# Forbidden URI patterns (POSIX regexp).
+# Space separated.
+# Only used if WHITELISTED_URIS is blank.
+# Example value: loadaverage.org/badguy stackexchange.com/.*spammer
+openid_BLACKLISTED_URIS:
+
+# Time limit to confirm account/email registration
+service_ACTIVE_CODE_LIVE_MINUTES: 180
+# Time limit to perform the reset of a forgotten password
+service_RESET_PASSWD_CODE_LIVE_MINUTES: 180
+# Whether a new user needs to confirm their email when registering.
+service_REGISTER_EMAIL_CONFIRM: 'false'
+# Disallow registration, only allow admins to create accounts.
+service_DISABLE_REGISTRATION: 'false'
+# Allow registration only using third part services, it works only when DISABLE_REGISTRATION is 'false'
+service_ALLOW_ONLY_EXTERNAL_REGISTRATION: 'false'
+# User must sign in to view anything.
+service_REQUIRE_SIGNIN_VIEW: 'false'
+# Mail notification
+service_ENABLE_NOTIFY_MAIL: 'false'
+# More detail: https://github.com/gogits/gogs/issues/165
+service_ENABLE_REVERSE_PROXY_AUTHENTICATION: 'false'
+service_ENABLE_REVERSE_PROXY_AUTO_REGISTRATION: 'false'
+# Enable captcha validation for registration
+service_ENABLE_CAPTCHA: 'false'
+# Type of captcha you want to use. Options: image, recaptcha
+service_CAPTCHA_TYPE: image
+# Enable recaptcha to use Google's recaptcha service
+# Go to https://www.google.com/recaptcha/admin to sign up for a key
+service_RECAPTCHA_SECRET :
+service_RECAPTCHA_SITEKEY:
+# Default value for KeepEmailPrivate
+# Each new user will get the value of this setting copied into their profile
+service_DEFAULT_KEEP_EMAIL_PRIVATE: 'false'
+# Default value for AllowCreateOrganization
+# Every new user will have rights set to create organizations depending on this setting
+service_DEFAULT_ALLOW_CREATE_ORGANIZATION: 'true'
+# Default value for EnableDependencies
+# Repositories will use depencies by default depending on this setting
+service_DEFAULT_ENABLE_DEPENDENCIES: 'true'
+# Enable Timetracking
+service_ENABLE_TIMETRACKING: 'true'
+# Default value for EnableTimetracking
+# Repositories will use timetracking by default depending on this setting
+service_DEFAULT_ENABLE_TIMETRACKING: 'true'
+# Default value for AllowOnlyContributorsToTrackTime
+# Only users with write permissions can track time if this is 'true'
+service_DEFAULT_ALLOW_ONLY_CONTRIBUTORS_TO_TRACK_TIME: 'true'
+# Default value for the domain part of the user's email address in the git log
+# if he has set KeepEmailPrivate to 'true'. The user's email will be replaced with a
+# concatenation of the user name in lower case, "@" and NO_REPLY_ADDRESS.
+service_NO_REPLY_ADDRESS: noreply.example.org
+
+# Hook task queue length, increase if webhook shooting starts hanging
+webhook_QUEUE_LENGTH: 1000
+# Deliver timeout in seconds
+webhook_DELIVER_TIMEOUT: 5
+# Allow insecure certification
+webhook_SKIP_TLS_VERIFY: 'false'
+# Number of history information in each page
+webhook_PAGING_NUM: 10
+
+mailer_ENABLED: 'false'
+# Buffer length of channel, keep it as it is if you don't know what it is.
+mailer_SEND_BUFFER_LEN: 100
+# Name displayed in mail title
+mailer_SUBJECT: "%(APP_NAME)s"
+# Mail server
+# Gmail: smtp.gmail.com:587
+# QQ: smtp.qq.com:465
+# Note, if the port ends with "465", SMTPS will be used. Using STARTTLS on port 587 is recommended per RFC 6409. If the server supports STARTTLS it will always be used.
+mailer_HOST:
+# Disable HELO operation when hostnames are different.
+mailer_DISABLE_HELO:
+# Custom hostname for HELO operation, if no value is provided, one is retrieved from system.
+mailer_HELO_HOSTNAME:
+# Do not verify the certificate of the server. Only use this for self-signed certificates
+mailer_SKIP_VERIFY:
+# Use client certificate
+mailer_USE_CERTIFICATE: 'false'
+mailer_CERT_FILE: custom/mailer/cert.pem
+mailer_KEY_FILE: custom/mailer/key.pem
+# Mail from address, RFC 5322. This can be just an email address, or the `"Name" <email@example.com>` format
+mailer_FROM:
+# Mailer user name and password
+mailer_USER:
+# Use PASSWD: `your password` for quoting if you use special characters in the password.
+mailer_PASSWD:
+# Send mails as plain text
+mailer_SEND_AS_PLAIN_TEXT: 'false'
+# Enable sendmail (override SMTP)
+mailer_USE_SENDMAIL: 'false'
+# Specify an alternative sendmail binary
+mailer_SENDMAIL_PATH: sendmail
+# Specify any extra sendmail arguments
+mailer_SENDMAIL_ARGS:
+
+# Either "memory", "redis", or "memcache", default is "memory"
+cache_ADAPTER: memory
+# For "memory" only, GC interval in seconds, default is 60
+cache_INTERVAL: 60
+# For "redis" and "memcache", connection host address
+# redis: network=tcp,addr=:6379,password=macaron,db=0,pool_size=100,idle_timeout=180
+# memcache: `127.0.0.1:11211`
+cache_HOST:
+# Time to keep items in cache if not used, default is 16 hours.
+# Setting it to 0 disables caching
+cache_ITEM_TTL: 16h
+
+# Either "memory", "file", or "redis", default is "memory"
+session_PROVIDER: memory
+# Provider config options
+# memory: doesn't have any config yet
+# file: session file path, e.g. `data/sessions`
+# redis: network=tcp,addr=:6379,password=macaron,db=0,pool_size=100,idle_timeout=180
+# mysql: go-sql-driver/mysql dsn config string, e.g. `root:password@/session_table`
+session_PROVIDER_CONFIG: data/sessions
+# Session cookie name
+session_COOKIE_NAME: i_like_gitea
+# If you use session in https only, default is 'false'
+session_COOKIE_SECURE: 'false'
+# Enable set cookie, default is 'true'
+session_ENABLE_SET_COOKIE: 'true'
+# Session GC time interval in seconds, default is 86400 (1 day)
+session_GC_INTERVAL_TIME: 86400
+# Session life time in seconds, default is 86400 (1 day)
+session_SESSION_LIFE_TIME: 86400
+
+picture_AVATAR_UPLOAD_PATH: data/avatars
+# Max Width and Height of uploaded avatars. This is to limit the amount of RAM
+# used when resizing the image.
+picture_AVATAR_MAX_WIDTH: 4096
+picture_AVATAR_MAX_HEIGHT: 3072
+# Chinese users can choose "duoshuo"
+# or a custom avatar source, like: http://cn.gravatar.com/avatar/
+picture_GRAVATAR_SOURCE: gravatar
+# This value will always be 'true' in offline mode.
+picture_DISABLE_GRAVATAR: 'false'
+# Federated avatar lookup uses DNS to discover avatar associated
+# with emails, see https://www.libravatar.org
+# This value will always be 'false' in offline mode or when Gravatar is disabled.
+picture_ENABLE_FEDERATED_AVATAR: 'false'
+
+# Whether attachments are enabled. Defaults to `'true'`
+attachment_ENABLED: 'true'
+# Path for attachments. Defaults to `data/attachments`
+attachment_PATH: data/attachments
+# One or more allowed types, e.g. image/jpeg|image/png
+attachment_ALLOWED_TYPES: image/jpeg|image/png|application/zip|application/gzip
+# Max size of each file. Defaults to 4MB
+attachment_MAX_SIZE: 4
+# Max number of files per upload. Defaults to 5
+attachment_MAX_FILES: 5
+
+# Specifies the format for fully outputted dates. Defaults to RFC1123
+# Special supported values are ANSIC, UnixDate, RubyDate, RFC822, RFC822Z, RFC850, RFC1123, RFC1123Z, RFC3339, RFC3339Nano, Kitchen, Stamp, StampMilli, StampMicro and StampNano
+# For more information about the format see http://golang.org/pkg/time/#pkg-constants
+time_FORMAT:
+
+log_ROOT_PATH:
+# Either "console", "file", "conn", "smtp" or "database", default is "console"
+# Use comma to separate multiple modes, e.g. "console, file"
+log_MODE: console
+# Buffer length of the channel, keep it as it is if you don't know what it is.
+log_BUFFER_LEN: 10000
+# Either "Trace", "Debug", "Info", "Warn", "Error", "Critical", default is "Trace"
+log_LEVEL: Trace
+
+# For "console" mode only
+log_console_LEVEL:
+
+# For "file" mode only
+log_file_LEVEL:
+# This enables automated log rotate(switch of following options), default is 'true'
+log_file_LOG_ROTATE: 'true'
+# Max number of lines in a single file, default is 1000000
+log_file_MAX_LINES: 1000000
+# Max size shift of a single file, default is 28 means 1 << 28, 256MB
+log_file_MAX_SIZE_SHIFT: 28
+# Segment log daily, default is 'true'
+log_file_DAILY_ROTATE: 'true'
+# delete the log file after n days, default is 7
+log_file_MAX_DAYS: 7
+
+# For "conn" mode only
+log_conn_LEVEL:
+# Reconnect host for every single message, default is 'false'
+log_conn_RECONNECT_ON_MSG: 'false'
+# Try to reconnect when connection is lost, default is 'false'
+log_conn_RECONNECT: 'false'
+# Either "tcp", "unix" or "udp", default is "tcp"
+log_conn_PROTOCOL: tcp
+# Host address
+log_conn_ADDR:
+
+# For "smtp" mode only
+log_smtp_LEVEL:
+# Name displayed in mail title, default is "Diagnostic message from server"
+log_smtp_SUBJECT: Diagnostic message from server
+# Mail server
+log_smtp_HOST:
+# Mailer user name and password
+log_smtp_USER:
+# Use PASSWD: `your password` for quoting if you use special characters in the password.
+log_smtp_PASSWD:
+# Receivers, can be one or more, e.g. 1@example.com,2@example.com
+log_smtp_RECEIVERS:
+
+# For "database" mode only
+log_database_LEVEL:
+# Either "mysql" or "postgres"
+log_database_DRIVER:
+# Based on xorm, e.g.: root:root@localhost/gitea?charset=utf8
+log_database_CONN:
+
+# Enable running cron tasks periodically.
+cron_ENABLED: 'true'
+# Run cron tasks when Gitea starts.
+cron_RUN_AT_START: 'false'
+
+# Update mirrors
+cron_update_mirrors_SCHEDULE: "@every 10m"
+
+# Repository health check
+cron_repo_health_check_SCHEDULE: "@every 24h"
+cron_repo_health_check_TIMEOUT: 60s
+# Arguments for command 'git fsck', e.g. "--unreachable --tags"
+# see more on http://git-scm.com/docs/git-fsck/1.7.5
+cron_repo_health_check_ARGS:
+
+# Check repository statistics
+cron_check_repo_stats_RUN_AT_START: 'true'
+cron_check_repo_stats_SCHEDULE: "@every 24h"
+
+# Clean up old repository archives
+# Whether to enable the job
+cron_archive_cleanup_ENABLED: 'true'
+# Whether to always run at least once at start up time (if ENABLED)
+cron_archive_cleanup_RUN_AT_START: 'true'
+# Time interval for job to run
+cron_archive_cleanup_SCHEDULE: "@every 24h"
+# Archives created more than OLDER_THAN ago are subject to deletion
+cron_archive_cleanup_OLDER_THAN: 24h
+
+# Synchronize external user data (only LDAP user synchronization is supported)
+# Synchronize external user data when starting server (default 'false')
+cron_sync_external_users_RUN_AT_START: 'false'
+# Interval as a duration between each synchronization (default every 24h)
+cron_sync_external_users_SCHEDULE: "@every 24h"
+# Create new users, update existing user data and disable users that are not in external source anymore (default)
+#   or only create new users if UPDATE_EXISTING is set to 'false'
+cron_sync_external_users_UPDATE_EXISTING: 'true'
+
+# Disables highlight of added and removed changes
+git_DISABLE_DIFF_HIGHLIGHT: 'false'
+# Max number of lines allowed in a single file in diff view
+git_MAX_GIT_DIFF_LINES: 1000
+# Max number of allowed characters in a line in diff view
+git_MAX_GIT_DIFF_LINE_CHARACTERS: 5000
+# Max number of files shown in diff view
+git_MAX_GIT_DIFF_FILES: 100
+# Arguments for command 'git gc', e.g. "--aggressive --auto"
+# see more on http://git-scm.com/docs/git-gc/1.7.5
+git_GC_ARGS:
+# Operation timeout in seconds
+git_timeout_MIGRATE: 600
+git_timeout_MIRROR: 300
+git_timeout_CLONE: 300
+git_timeout_PULL: 300
+git_timeout_GC: 60
+
+
+# Default interval as a duration between each check
+mirror_DEFAULT_INTERVAL: 8h
+# Min interval as a duration must be > 1m
+mirror_MIN_INTERVAL: 10m
+
+# Enables Swagger. 'true' or 'false', default is 'true'.
+api_ENABLE_SWAGGER: 'true'
+# Max number of items in a page
+api_MAX_RESPONSE_ITEMS: 50
+
+i18n_LANGS: en-US,zh-CN,zh-HK,zh-TW,de-DE,fr-FR,nl-NL,lv-LV,ru-RU,uk-UA,ja-JP,es-ES,pt-BR,pl-PL,bg-BG,it-IT,fi-FI,tr-TR,cs-CZ,sr-SP,sv-SE,ko-KR
+i18n_NAMES: English,简体中文,繁體中文（香港）,繁體中文（台灣）,Deutsch,français,Nederlands,latviešu,русский,Українська,日本語,español,português do Brasil,polski,български,italiano,suomi,Türkçe,čeština,српски,svenska,한국어
+
+# Used for datetimepicker
+i18n_datelang_en_US: en
+i18n_datelang_zh_CN: zh
+i18n_datelang_zh_HK: zh-HK
+i18n_datelang_zh_TW: zh-TW
+i18n_datelang_de_DE: de
+i18n_datelang_fr_FR: fr
+i18n_datelang_nl_NL: nl
+i18n_datelang_lv_LV: lv
+i18n_datelang_ru_RU: ru
+i18n_datelang_uk_UA: uk
+i18n_datelang_ja_JP: ja
+i18n_datelang_es_ES: es
+i18n_datelang_pt_BR: pt-BR
+i18n_datelang_pl_PL: pl
+i18n_datelang_bg_BG: bg
+i18n_datelang_it_IT: it
+i18n_datelang_fi_FI: fi
+i18n_datelang_tr_TR: tr
+i18n_datelang_cs_CZ: cs-CZ
+i18n_datelang_sr_SP: sr
+i18n_datelang_sv_SE: sv
+i18n_datelang_ko_KR: ko
+
+#[U2F]
+# Two Factor authentication with security keys
+# https://developers.yubico.com/U2F/App_ID.html
+#APP_ID: %(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/
+# Comma seperated list of truisted facets
+#TRUSTED_FACETS: %(PROTOCOL)s://%(DOMAIN)s:%(HTTP_PORT)s/
+
+# Extension mapping to highlight class
+# e.g. .toml=ini
+# [highlight.mapping]
+
+other_SHOW_FOOTER_BRANDING: 'false'
+# Show version information about Gitea and Go in the footer
+other_SHOW_FOOTER_VERSION: 'true'
+# Show template execution time in the footer
+other_SHOW_FOOTER_TEMPLATE_LOAD_TIME: 'true'
+
+markup_asciidoc_ENABLED: 'false'
+# List of file extensions that should be rendered by an external command
+markup_asciidoc_FILE_EXTENSIONS: .adoc,.asciidoc
+# External command to render all matching extensions
+markup_asciidoc_RENDER_COMMAND: "asciidoc --out-file=- -"
+# Don't pass the file on STDIN, pass the filename as argument instead.
+markup_asciidoc_IS_INPUT_FILE: 'false'

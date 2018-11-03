@@ -46,7 +46,7 @@
       - "/etc/passwd:/etc/passwd:ro"
       - "{{ postgresql_data_directory }}:/var/lib/postgresql/data"
     become: True
-  
+
   - name: enable postgres secrets backend
     hashivault_secret_enable:
       name: "database/1"
@@ -56,3 +56,11 @@
       token: "70e43a1d-227d-3932-219a-e0f0260910ac"
     tags:
     - vault
+
+  - name: register postgres at consul
+    consul:
+      service_name: postgres
+      service_port: 5432
+      tags:
+      - leader
+      interval: 30s

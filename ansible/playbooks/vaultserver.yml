@@ -7,7 +7,7 @@
     VAULT_CACERT: "/etc/vault/ssl/ca.pem"
   roles:
   - role: rattermeyer.vault
-    vault_version: "0.10.1"
+    vault_version: "0.11.4"
     vault_primary_node: server1.node.dc1.consul
     vault_iface: enp0s8
     vault_config_consul_address: "127.0.0.1:8543"

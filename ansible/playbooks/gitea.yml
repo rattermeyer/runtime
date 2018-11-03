@@ -1,0 +1,25 @@
+- hosts: postgresql-master
+  vars:
+    gitea_postgresql_password: gitea
+  tasks:
+  - name: create gitea user
+    postgresql_user:
+      name: gitea
+      password: "{{ gitea_postgresql_password }}"
+      encrypted: True
+      login_user: "postgres"
+      login_host: "127.0.0.1"
+    become: True
+  - name: create gitea database
+    postgresql_db:
+      name: gitea
+      owner: gitea
+      encoding: UTF-8
+      login_user: "postgres"
+      login_host: "127.0.0.1"
+    become: True
+
+- hosts: gitea-server
+  become: true
+  roles:
+  - local.gitea

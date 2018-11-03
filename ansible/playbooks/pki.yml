@@ -68,7 +68,7 @@
       name: openjdk-8-jdk
     tags: create_truststore
     become: True
-  - name: import certificate
+  - name: import certificates into java keystore
     java_cert:
       cert_path: "{{item.cert_path}}"
       cert_alias: "{{item.cert_alias}}"

@@ -135,3 +135,16 @@
     state: started
     name: fabio
   become: True
+
+- name: ensure python-consul
+  pip:
+    name: "{{item}}"
+  with_items:
+  - docker
+  become: True
+    
+- name: register fabio
+  consul:
+    service_name: fabio
+    service_port: 8443
+  become: True

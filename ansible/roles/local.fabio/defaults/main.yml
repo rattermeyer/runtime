@@ -1,7 +1,7 @@
 ---
-fabio_version: 1.5.6
-fabio_go_version: 1.9.2
-fabio_checksum_file: "fabio-go{{ fabio_go_version }}-{{ fabio_version }}.sha256"
+fabio_version: 1.5.9
+fabio_go_version: 1.10.2
+fabio_checksum_file: "fabio-{{ fabio_version }}-go{{ fabio_go_version }}.sha256"
 fabio_checksum_file_url: "https://github.com/eBay/fabio/releases/download/v{{ fabio_version }}/{{ fabio_checksum_file }}"
 fabio_pkg: "fabio-{{ fabio_version }}-go{{ fabio_go_version }}-linux_amd64"
 fabio_pkg_url: "https://github.com/eBay/fabio/releases/download/v{{ fabio_version }}/fabio-{{ fabio_version }}-go{{ fabio_go_version }}-linux_amd64"
@@ -12,7 +12,7 @@ fabio_validate_certs: true
 fabio_verify_checksum_signature: True
     
 fabio_signature_file: "{{ fabio_checksum_file }}.sig"
-fabio_signature_url: "https://github.com/eBay/fabio/releases/download/v{{ fabio_version }}/{{ fabio_signature_file }}"
+fabio_signature_url: "https://github.com/fabiolb/fabio/releases/download/v{{ fabio_version }}/{{ fabio_signature_file }}"
 
 fabio_properties_proxy_addr: ":80"
 

@@ -1,0 +1,63 @@
+- name: Install git
+  meta: noop
+
+- name: Create git user
+  user:
+    name: "{{ gitea_user }}"
+    comment: Git Version Control
+    shell: /bin/bash
+    create_home: True
+    home: "/home/{{ gitea_user }}"
+
+- name: Create required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ gitea_user }}"
+    mode: 0750
+  with_items:
+  - /var/lib/gitea/data
+  - /var/lib/gitea/indexers
+  - /var/lib/gitea/log
+
+- name: Create required custom directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ gitea_user }}"
+  with_items:
+  - /var/lib/gitea/custom
+  - /var/lib/gitea/custom/public
+
+- name: Create required config directory
+  file:
+    path: "/etc/gitea"
+    state: directory
+    owner: root
+    group: "{{ gitea_user }}"
+    mode: 0770
+
+- name: Download gitea binary
+  get_url:
+    url: https://dl.gitea.io/gitea/1.5.0/gitea-1.5.0-linux-amd64
+    dest: /usr/local/bin/gitea
+    mode: 0755
+    owner: root
+    group: "{{ gitea_user }}"
+
+- name: copy gitea.service
+  template:
+    src: gitea.service
+    dest: /etc/systemd/system/gitea.service
+  notify: restart service
+
+- name: Copy gitea app.ini
+  template:
+    src: gitea.ini
+    dest: /etc/gitea/app.ini
+    owner: git
+    mode: 0770
+  notify: restart service
+
+- name: register service at consul
+  meta: noop

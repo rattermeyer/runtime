@@ -1,0 +1,19 @@
+- hosts: controller
+  vars:
+    contiv_version: 1.1.9
+    download_dir: "~/downloads"
+    download_file: "contiv-{{ contiv_version }}.tgz"
+  tasks:
+  - name: ensure download dir exists
+    file:
+      path: "{{ download_dir }}"
+      state: directory
+  - name: download contiv
+    get_url:
+      url: "https://github.com/contiv/install/releases/download/{{ contiv_version }}/{{ download_file }}"
+      dest: "{{ download_dir }}"
+  - name: unarchive contiv
+    unarchive:
+      src: "{{ download_dir }}/{{ download_file }}"
+      dest: "{{ download_dir }}"
+      creates: "{{ download_dir }}/contiv-{{ contiv_version}}"
